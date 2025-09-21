@@ -1,23 +1,21 @@
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import "./App.css";
+
+import NoteWidget from "./widgets/NoteWidget";
+import CalendarWidget from "./widgets/CalendarWidget";
+import WeatherWidget from "./widgets/WeatherWidget";
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className="dashboard">
+      <header className="header">My Dashboard</header>
+      <main className="grid-left">
+        <NoteWidget />
+      </main>
+      <main className="grid-right">
+        <CalendarWidget />
+        <WeatherWidget />
+      </main>
     </div>
   );
 }
