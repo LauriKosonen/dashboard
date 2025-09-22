@@ -1,12 +1,12 @@
-body {
+body, html, #root {
+  height: 100%;
   margin: 0;
-  font-family: Arial, sans-serif;
 }
 
 .dashboard {
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  height: 100%;
 }
 
 .header {
@@ -17,28 +17,61 @@ body {
   font-size: 1.5rem;
 }
 
-.grid-left {
+/* Main grid layout */
+.grid {
   flex: 1;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+
+  /* 2 columns, 2 rows */
+  grid-template-columns: 2fr 1fr;
+  grid-template-rows: 1fr 1fr 1fr;
+
+  /* Define grid areas */
+  grid-template-areas:
+    "notes calendar"
+    "notes calendar"
+    "notes weather";
+
   gap: 1rem;
   padding: 1rem;
   background: #f4f4f4;
 }
 
-.grid-right {
-  flex: 1;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 1rem;
-  padding: 1rem;
-  background: #f4f4f4;
+.notes-widget {
+  grid-area: notes;
 }
 
+.calendar-widget {
+  grid-area: calendar;
+}
+
+.weather-widget {
+  grid-area: weather;
+  background-image: url("./images/weather-sun.png");
+  background-position: center;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  display: flex;
+  flex-direction: column;
+}
 
 .widget {
   background: white;
   padding: 1rem;
   border-radius: 8px;
   box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  display: flex;
+  flex-direction: column;
+}
+
+/* Mobile view: stack widgets */
+@media only screen and (max-width: 768px) {
+  .grid {
+    grid-template-columns: 1fr;
+    grid-template-rows: 3fr 2fr 1fr;
+    grid-template-areas:
+      "notes"
+      "calendar"
+      "weather";
+  }
 }
