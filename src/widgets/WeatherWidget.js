@@ -5,72 +5,106 @@ import axios from 'axios'
 import '../App.css';
 
 function WeatherWidget() {
-
- const API_KEY = process.env.REACT_APP_WEATHER_APIKEY;
-  const URL = 'https://api.openweathermap.org/data/2.5/weather?q=';
-  const ICON_URL = 'http://openweathermap.org/img/wn/';
+  const API_KEY = process.env.REACT_APP_WEATHER_APIKEY;
+  const ICON_URL = "http://openweathermap.org/img/wn/";
 
   const [cityname, setCityname] = useState("Jyväskylä");
-
-  const getWeather = () => {
-    axios
-      .get(URL+cityname+'&appid='+API_KEY+'&units=metric')
-      .then(response => {
-        // console.log(response.data) to see data in console
-        setWeather(response.data)
-      })
-  }
-
   const [weather, setWeather] = useState(null);
+  const [forecast, setForecast] = useState([]);
+
+  const getWeather = async () => {
+  try {
+    // Fetch current weather
+    const currentRes = await axios.get(
+      `https://api.openweathermap.org/data/2.5/weather?q=${cityname}&appid=${API_KEY}&units=metric`
+    );
+    setWeather(currentRes.data);
+
+    // Fetch forecast
+    const forecastRes = await axios.get(
+      `https://api.openweathermap.org/data/2.5/forecast?q=${cityname}&appid=${API_KEY}&units=metric`
+    );
+
+    // Filter only future entries
+    const now = new Date();
+    const futureForecast = forecastRes.data.list.filter(
+      (f) => new Date(f.dt_txt) > now
+    );
+
+    // Take the next 4 intervals
+    setForecast(futureForecast.slice(0, 4));
+  } catch (err) {
+    console.error("Error fetching weather:", err);
+  }
+};
 
   return (
     <div className="App">
-        <div className="weather-search" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <h1 style={{ margin: 0 }}>Weather</h1>
-            <TextField
-                label="Cityname"
-                defaultValue=""
-                id="outlined-basic"
-                onChange={(e) => setCityname(e.target.value)}
-            />
-            <Button
-                variant="contained"
-                color="primary"
-                size="small"
-                onClick={() => getWeather()}
-            >
-                Get Forecast
-            </Button>
-        </div>
-        <div className="weather-container" style={{ display: 'flex', gap: '20px' }}>
-            {weather !== null &&
-                <div className="weather-now" style={{ padding: '10px' }}>
-                <h2>Current Weather</h2>
-                {weather.name}<br/>
-                {weather.weather[0].main}<br/>
-                {Math.round(weather.main.temp)} °C<br/>
-                <img
-                 alt={cityname} 
-                    style={{height: 100, width: 100}}
-                    src={ICON_URL + weather.weather[0].icon + '.png'}
-                />
-        </div>
-            }
+      {/* Search Bar */}
+      <div
+        className="weather-search"
+        style={{ display: "flex", alignItems: "center", gap: "20px", color: "white" }}
+      >
+        <TextField
+          label="Cityname"
+          value={cityname}
+          onChange={(e) => setCityname(e.target.value)}
+          className="textfield"
+        />
+        <Button
+          variant="contained"
+          color="primary"
+          size="small"
+          onClick={getWeather}
+        >
+          Get Forecast
+        </Button>
+      </div>
 
-            {weather !== null &&
-        <div className="weather-forecast" style={{ padding: '10px' }}>
-            <h2>Forecast</h2>
-            {/* Example forecast data */}
-            <p>Tomorrow: 23°C, Sunny</p>
-            <p>Day after: 22°C, Cloudy</p>
-            {/* Replace these with your actual forecast API data */}
+      {/* Weather Container */}
+      <div
+        className="weather-container"
+        style={{ display: "flex", gap: "10px", marginTop: "10px", marginLeft: "5px" }}
+      >
+
+        {/* Forecast */}
+        {forecast.length > 0 && (
+          <div className="weather-forecast" style={{ padding: "5px" }}>
+            <ul style={{ listStyle: "none", padding: 0 }}>
+              {forecast.map((f, index) => (
+                <li key={index} style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    marginBottom: "1px",
+                    paddingBottom: "1px",
+                     borderBottom: index !== forecast.length - 1 ? "1px solid #ccc" : "none"
+                 }}>
+                  {new Date(f.dt_txt).getHours()}:00 {" "}
+                  
+                  <img
+                    alt={f.weather[0].description}
+                    src={ICON_URL + f.weather[0].icon + ".png"}
+                    style={{ width: 40, height: 40, marginLeft: "10px" }}
+                  />
+                  {Math.round(f.main.temp)}°C
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {/* Current Weather */}
+        {weather && (
+        <div className="weather-now" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "0em" }}>
+            <span style={{ fontSize: "170%" }}>{Math.round(weather.main.temp)}°</span>
+            <span style={{ fontSize: "35%" }}>{weather.weather[0].main}</span>
         </div>
-            }
-    </div>    
-      
+        )}
+
+      </div>
     </div>
-    
-    );
+  );
 }
 
 export default WeatherWidget;
