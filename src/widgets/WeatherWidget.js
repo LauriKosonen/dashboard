@@ -8,7 +8,7 @@ function WeatherWidget() {
   const API_KEY = process.env.REACT_APP_WEATHER_APIKEY;
   const ICON_URL = "http://openweathermap.org/img/wn/";
 
-  const [cityname, setCityname] = useState("Jyväskylä");
+  const [cityname, setCityname] = useState(" ");
   const [weather, setWeather] = useState(null);
   const [forecast, setForecast] = useState([]);
 
