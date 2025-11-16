@@ -17,7 +17,7 @@ body, html, #root {
   font-size: 1.5rem;
 }
 
-/* Main grid layout */
+/* grid layout */
 .grid {
   flex: 1;
   display: grid;
@@ -26,7 +26,6 @@ body, html, #root {
   grid-template-columns: 2fr 1fr;
   grid-template-rows: 1fr 1fr 1fr;
 
-  /* Define grid areas */
   grid-template-areas:
     "notes calendar"
     "notes calendar"
@@ -61,21 +60,21 @@ body, html, #root {
 }
 
 .textfield .MuiOutlinedInput-root {
-  color: white; /* input text color */
+  color: white;
 }
 
 .textfield .MuiInputLabel-root {
-  color: white; /* label color */
+  color: white; 
 }
 
 /* Label color when focused */
 .textfield .MuiInputLabel-root.Mui-focused {
-  color: white; /* keep label white on focus */
+  color: white;
 }
 
 /* Outline / border color */
 .textfield .MuiOutlinedInput-root fieldset {
-  border-color: white; /* default */
+  border-color: white;
 }
 
 /* Hover state */
@@ -88,7 +87,6 @@ body, html, #root {
   border-color: white;
 }
 
-/* Optional: placeholder text color */
 .textfield .MuiInputBase-input::placeholder {
   color: rgba(255, 255, 255, 0.7);
 }
@@ -120,7 +118,7 @@ body, html, #root {
   flex-direction: column;
 }
 
-/* Mobile view: stack widgets */
+
 @media only screen and (max-width: 768px) {
   .grid {
     grid-template-columns: 1fr;

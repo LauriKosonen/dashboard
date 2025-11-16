@@ -9,7 +9,7 @@ function App() {
 
   return (
     <div className="dashboard">
-      <header className="header">My Dashboard</header>
+      <header className="header">Dashboard</header>
       <main className="grid">
         <div className="widget notes-widget"><NoteWidget /></div>
         <div className="widget calendar-widget"><CalendarWidget /></div>

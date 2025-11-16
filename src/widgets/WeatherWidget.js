@@ -14,7 +14,7 @@ function WeatherWidget() {
 
   const getWeather = async () => {
   try {
-    // Fetch current weather
+    // get current weather
     const currentRes = await axios.get(
       `https://api.openweathermap.org/data/2.5/weather?q=${cityname}&appid=${API_KEY}&units=metric`
     );
@@ -31,7 +31,7 @@ function WeatherWidget() {
       (f) => new Date(f.dt_txt) > now
     );
 
-    // Take the next 4 intervals
+    // Next 4 Weather entries
     setForecast(futureForecast.slice(0, 4));
   } catch (err) {
     console.error("Error fetching weather:", err);
