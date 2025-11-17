@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 import axios from 'axios'
-import '../App.css';
+// import '../App.css';
+import "./WeatherWidget.css";
 
 function WeatherWidget() {
   const API_KEY = process.env.REACT_APP_WEATHER_APIKEY;

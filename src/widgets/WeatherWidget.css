@@ -1,0 +1,65 @@
+.weather-widget {
+  grid-area: weather;
+  background-image: url("../images/weather-sun.png");
+  background-position: center;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  display: flex;
+  flex-direction: column;
+  color: white;
+}
+
+.weather-search {
+  padding: 1rem;
+}
+
+.textfield .MuiOutlinedInput-root {
+  color: white;
+}
+
+.textfield .MuiInputLabel-root {
+  color: white; 
+}
+
+/* Label color when focused */
+.textfield .MuiInputLabel-root.Mui-focused {
+  color: white;
+}
+
+/* Outline / border color */
+.textfield .MuiOutlinedInput-root fieldset {
+  border-color: white;
+}
+
+/* Hover state */
+.textfield .MuiOutlinedInput-root:hover fieldset {
+  border-color: white;
+}
+
+/* Focused state */
+.textfield .MuiOutlinedInput-root.Mui-focused fieldset {
+  border-color: white;
+}
+
+.textfield .MuiInputBase-input::placeholder {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+
+.weather-container {
+  margin: 5px;
+}
+
+.weather-now {
+  display: grid;
+  place-items: center;
+  flex: 1;
+  font-size: 400%;
+  margin: 0;
+  padding: 0;
+}
+
+.weather-forecast {
+  background-color: rgba(230, 230, 230, 0.2);
+  border-radius: 8px;
+}
