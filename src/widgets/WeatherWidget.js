@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 import axios from 'axios'
-// import '../App.css';
 import "./WeatherWidget.css";
 
 function WeatherWidget() {
@@ -15,24 +14,24 @@ function WeatherWidget() {
 
   const getWeather = async () => {
   try {
-    // get current weather
+    //current weather
     const currentRes = await axios.get(
       `https://api.openweathermap.org/data/2.5/weather?q=${cityname}&appid=${API_KEY}&units=metric`
     );
     setWeather(currentRes.data);
 
-    // Fetch forecast
+    //forecast
     const forecastRes = await axios.get(
       `https://api.openweathermap.org/data/2.5/forecast?q=${cityname}&appid=${API_KEY}&units=metric`
     );
 
-    // Filter only future entries
+    //only future entries
     const now = new Date();
     const futureForecast = forecastRes.data.list.filter(
       (f) => new Date(f.dt_txt) > now
     );
 
-    // Next 4 Weather entries
+    //next 4 weather entries
     setForecast(futureForecast.slice(0, 4));
   } catch (err) {
     console.error("Error fetching weather:", err);
@@ -41,7 +40,7 @@ function WeatherWidget() {
 
   return (
     <div className="App">
-      {/* Search Bar */}
+      {/*search bar*/}
       <div
         className="weather-search"
         style={{ display: "flex", alignItems: "center", gap: "20px", color: "white" }}
@@ -62,13 +61,13 @@ function WeatherWidget() {
         </Button>
       </div>
 
-      {/* Weather Container */}
+      {/*weather container*/}
       <div
         className="weather-container"
         style={{ display: "flex", gap: "10px", marginTop: "10px", marginLeft: "5px" }}
       >
 
-        {/* Forecast */}
+        {/*forecast*/}
         {forecast.length > 0 && (
           <div className="weather-forecast" style={{ padding: "5px" }}>
             <ul style={{ listStyle: "none", padding: 0 }}>
@@ -95,7 +94,7 @@ function WeatherWidget() {
           </div>
         )}
 
-        {/* Current Weather */}
+        {/*current weather*/}
         {weather && (
         <div className="weather-now" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "0em" }}>
             <span style={{ fontSize: "170%" }}>{Math.round(weather.main.temp)}°</span>
