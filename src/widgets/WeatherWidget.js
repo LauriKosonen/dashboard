@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import Button from '@mui/material/Button';
+import SearchIcon from '@mui/icons-material/Search';
 import TextField from '@mui/material/TextField';
 import axios from 'axios'
 import "./WeatherWidget.css";
@@ -32,7 +33,7 @@ function WeatherWidget() {
     );
 
     //next 4 weather entries
-    setForecast(futureForecast.slice(0, 4));
+    setForecast(futureForecast.slice(0, 3));
   } catch (err) {
     console.error("Error fetching weather:", err);
   }
@@ -40,9 +41,13 @@ function WeatherWidget() {
 
   return (
     <div className="App">
-      {/*search bar*/}
-      <div
-        className="weather-search"
+      {/*search*/}
+      <form 
+        className="weather-search" 
+        onSubmit={(e) => { 
+          e.preventDefault(); 
+          getWeather();
+        }}
         style={{ display: "flex", alignItems: "center", gap: "20px", color: "white" }}
       >
         <TextField
@@ -51,15 +56,17 @@ function WeatherWidget() {
           onChange={(e) => setCityname(e.target.value)}
           className="textfield"
         />
-        <Button
-          variant="contained"
-          color="primary"
-          size="small"
+
+        <Button 
+          variant="contained" 
+          color="white" 
+          size="small" 
           onClick={getWeather}
+          sx={{padding: 1.9}}
         >
-          Get Forecast
+          <SearchIcon />
         </Button>
-      </div>
+      </form>
 
       {/*weather container*/}
       <div
@@ -69,16 +76,16 @@ function WeatherWidget() {
 
         {/*forecast*/}
         {forecast.length > 0 && (
-          <div className="weather-forecast" style={{ padding: "5px" }}>
-            <ul style={{ listStyle: "none", padding: 0 }}>
+          <div className="weather-forecast" style={{ margin: "7px" }}>
+            <ul style={{ listStyle: "none", padding: "5px" }}>
               {forecast.map((f, index) => (
                 <li key={index} style={{
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "space-between",
-                    marginBottom: "1px",
+                    margin: "4px",
                     paddingBottom: "1px",
-                     borderBottom: index !== forecast.length - 1 ? "1px solid #ccc" : "none"
+                    borderBottom: index !== forecast.length - 1 ? "1px solid #ccc" : "none"
                  }}>
                   {new Date(f.dt_txt).getHours()}:00 {" "}
                   
@@ -97,7 +104,7 @@ function WeatherWidget() {
         {/*current weather*/}
         {weather && (
         <div className="weather-now" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "0em" }}>
-            <span style={{ fontSize: "170%" }}>{Math.round(weather.main.temp)}°</span>
+            <span style={{ fontSize: "150%" }}>{Math.round(weather.main.temp)}°</span>
             <span style={{ fontSize: "35%" }}>{weather.weather[0].main}</span>
         </div>
         )}
