@@ -1,4 +1,23 @@
+.notes-widget {
+  grid-area: notes;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  /* color: white; */
+}
+
+.note-widget {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-height: 0;
+}
+
 .notes-list {
+  flex: 1 1 auto;      /* grow/shrink and take remaining space */
+  min-height: 0;       /* CRITICAL: allow flex child to be smaller */
+  overflow-y: auto;    /* show vertical scrollbar when needed */
+  padding-right: 6px;  /* avoid overlap with scrollbar */
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -6,16 +25,20 @@
 
 .note {
   padding: 10px;
-  background: white;
-  border-radius: 6px;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+  /* height: 200px;
+  overflow: hidden; */
+  background: rgb(65, 181, 239);
+  border-radius: 8px;
   position: relative;
+  box-shadow: 1px 2px 5px 1px rgba(0,0,0,0.3);
+  margin: 0.5em;
+  padding: 1em;
 }
 
 .note-title {
-  margin: 0;
+  height: 2em;
   font-weight: bold;
-  width: 80%;
+  width: 99%;
 }
 
 .note-text {
@@ -23,46 +46,20 @@
     width: 80%;
 }
 
-.delete-btn {
+.note-buttons {
   position: absolute;
   top: 8px;
-  right: 10px;
+  right: 8px;
+  display: flex;
+  gap: 8px;   /* space between edit and delete */
+}
+
+.note-buttons button {
   background: transparent;
   border: none;
-  color: red;
+  cursor: pointer;
   font-size: 1.2rem;
-  cursor: pointer;
 }
-
-.editor-wrapper {
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  overflow: hidden;
-}
-
-.editor-toolbar {
-  display: flex;
-  gap: 6px;
-  padding: 6px;
-  background: #f5f5f5;
-  border-bottom: 1px solid #ccc;
-}
-
-.editor-toolbar button {
-  padding: 5px 10px;
-  border: 1px solid #aaa;
-  background: white;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.editor-toolbar button.active {
-  background: #007bff;
-  color: white;
-  border-color: #007bff;
-}
-
-.editor-box {
-  padding: 10px;
-  min-height: 120px;
+.rsw-ce {
+  height: 300px;
 }

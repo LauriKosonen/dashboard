@@ -40,7 +40,7 @@ function WeatherWidget() {
 };
 
   return (
-    <div className="App">
+    <div className="weather-widget">
       {/*search*/}
       <form 
         className="weather-search" 
