@@ -1,5 +1,11 @@
 import React, { useState } from 'react';
 import "./NoteWidget.css";
+import Modal from '@mui/material/Modal';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import AddIcon from '@mui/icons-material/Add';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
 import {
   EditorProvider,
   Editor,
@@ -17,6 +23,13 @@ function NoteWidget() {
   const [itemText, setItemText] = useState("");
   const [items, setItems] = useState([]);
   const [editingId, setEditingId] = useState(null);
+
+  const handleOpen = () => setShowForm(true);
+  const handleClose = () => {
+    setShowForm(false);
+    setItemTitle("");
+    setItemText("");
+  };
 
   const [showForm, setShowForm] = useState(false);
 
@@ -58,66 +71,99 @@ function NoteWidget() {
   
   return (
     <div className="note-widget">
-      <h2>Notes</h2>
+      <div className="note-widget-header">
+        <h1>Notes</h1>
 
       {/* Create button when form is hidden */}
       {!showForm && (
-        <button onClick={() => setShowForm(true)}>
-          + Create New Note
-        </button>
+        <Button
+          variant="contained"
+          color="primary"
+          size="small"
+          onClick={handleOpen}
+          sx={{ padding: 1.9 }}
+        >
+          <AddIcon />
+        </Button>
       )}
+      </div>
+      
+      {/* Modal */}
+        <Modal open={showForm} onClose={handleClose}>
+          <Box
+            sx={{
+              position: 'absolute',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              width: 400,
+              bgcolor: 'background.paper',
+              borderRadius: 2,
+              boxShadow: 24,
+              p: 4,
+            }}
+          >
+            <form onSubmit={handleSubmit} className="note-form">
+              <input
+                className="note-title"
+                type="text"
+                value={itemTitle}
+                onChange={(e) => setItemTitle(e.target.value)}
+                placeholder="Title..."
+              />
 
-      {/* Note creation form */}
-      {showForm && (
-        <form onSubmit={handleSubmit} className="note-form">
-          <input
-            className="note-title"
-            type="text"
-            value={itemTitle}
-            onChange={(e) => setItemTitle(e.target.value)}
-            placeholder="Write your title here..."
-          />
-          <EditorProvider>
-            <Editor value={itemText} onChange={(e) => setItemText(e.target.value)} placeholder="Write your note here...">
-              <Toolbar>
-                <BtnBold />
-                <BtnItalic />
-                <BtnUnderline />
-                <BtnBulletList />
-                <BtnNumberedList />
-              </Toolbar>
-            </Editor>
-          </EditorProvider>
+              <EditorProvider>
+                <Editor
+                  value={itemText}
+                  onChange={(e) => setItemText(e.target.value)}
+                  placeholder="Write your note here..."
+                >
+                  <Toolbar>
+                    <BtnBold />
+                    <BtnItalic />
+                    <BtnUnderline />
+                    <BtnBulletList />
+                    <BtnNumberedList />
+                  </Toolbar>
+                </Editor>
+              </EditorProvider>
 
-          <div style={{ display: "flex", gap: "10px" }}>
-            <button type="submit">Add</button>
-            <button
-              type="button"
-              onClick={() => {
-                setShowForm(false);
-                setItemTitle("");
-                setItemText("");
-              }}
-            >
-              Cancel
-            </button>
-          </div>
-        </form>
-      )}
+              <div style={{ display: "flex", gap: "10px", marginTop: "15px" }}>
+                <Button variant="contained" type="submit">
+                  Add
+                </Button>
+                <Button variant="outlined" onClick={handleClose}>
+                  Cancel
+                </Button>
+              </div>
+            </form>
+          </Box>
+        </Modal>
 
       {/* Notes list */}
       <div className="notes-list">
-        {items.map(item => (
+        {[...items].reverse().map(item => (
           <div className="note" key={item.id}>
-            <h3>{item.title}</h3>
-            <div dangerouslySetInnerHTML={{ __html: item.text }} />
-            <div className="note-buttons">
-              <button className="edit-button" onClick={() => handleEdit(item.id)}>✎</button>
-              <button className="delete-button" onClick={() => removeItem(item.id)}>x</button>
+
+            <div className="note-header">
+              <h2>{item.title}</h2>
+
+              <div className="note-buttons">
+                <Button variant="contained" size="small" onClick={() => handleEdit(item.id)}>
+                  <EditIcon />
+                </Button>
+                <Button variant="contained" size="small" onClick={() => removeItem(item.id)}>
+                  <DeleteIcon />
+                </Button>
+              </div>
             </div>
+
+            <div dangerouslySetInnerHTML={{ __html: item.text }} />
+
           </div>
         ))}
       </div>
+
     </div>
   );
 }
