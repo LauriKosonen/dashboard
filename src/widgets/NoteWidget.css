@@ -37,9 +37,9 @@
 }
 
 .note {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
   padding: 10px;
-  /* height: 200px;
-  overflow: hidden; */
   background: rgb(65, 181, 239);
   border-radius: 8px;
   position: relative;
@@ -48,6 +48,14 @@
   padding: 1em;
   color: white;
   background-image: linear-gradient(to bottom right, rgb(45, 132, 255), rgb(60, 171, 250));
+}
+
+.note p,
+.note div,
+.note span,
+.note li {
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .note-title {
@@ -70,15 +78,22 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 10px;
 }
 
 .note-header h1 {
   margin: 0; 
 }
 
+.note-header h2 {
+  max-width: calc(100% - 10em); /*max width reduced to avoid overlap with buttons*/
+  margin: 0;
+  white-space: normal;
+  overflow-wrap: break-word;
+}
+
 .note-text {
-    margin: 2em;
-    width: 80%;
+    margin-top: 2em;
 }
 
 .note-buttons {
@@ -86,7 +101,8 @@
   top: 8px;
   right: 8px;
   display: flex;
-  gap: 8px;   /* space between edit and delete */
+  gap: 8px;
+  flex-shrink: 0;
 }
 
 .note-buttons button {

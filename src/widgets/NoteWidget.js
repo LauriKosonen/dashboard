@@ -6,6 +6,7 @@ import Button from '@mui/material/Button';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import FavoriteIcon from '@mui/icons-material/Favorite';
 import {
   EditorProvider,
   Editor,
@@ -24,6 +25,7 @@ function NoteWidget() {
   const [items, setItems] = useState([]);
   const [editingId, setEditingId] = useState(null);
 
+  
   const handleOpen = () => setShowForm(true);
   const handleClose = () => {
     setShowForm(false);
@@ -45,7 +47,7 @@ function NoteWidget() {
   }
   else {
   // add item to items, Math.random() is used to generate "unique" ID...
-  setItems([...items, {id: Math.random(), title: itemTitle, text: itemText}])
+  setItems([...items, {id: Math.random(), title: itemTitle, text: itemText, favorite: false}])
   }
   // modify newItem text to ""
   setItemTitle("");
@@ -67,6 +69,14 @@ function NoteWidget() {
   const removeItem = (id) => {
     setItems(items.filter(item => item.id !== id));
   };
+
+  const toggleFavorite = (id) => {
+  setItems(prev =>
+    prev.map(item =>
+      item.id === id ? { ...item, favorite: !item.favorite } : item
+    )
+  );
+};
 
   
   return (
@@ -142,13 +152,27 @@ function NoteWidget() {
 
       {/* Notes list */}
       <div className="notes-list">
-        {[...items].reverse().map(item => (
+        {[...items]
+          .sort((a, b) => {
+            if (a.favorite !== b.favorite) {
+              return a.favorite ? -1 : 1; // favorites first
+            }
+            return b.id - a.id; // newest first
+          })
+          .map(item => (
           <div className="note" key={item.id}>
 
             <div className="note-header">
               <h2>{item.title}</h2>
 
               <div className="note-buttons">
+                <Button
+                  variant="contained"
+                  size="small"
+                  onClick={() => toggleFavorite(item.id)}
+                >
+                  <FavoriteIcon sx={{ color: item.favorite ? 'red' : 'white' }} />
+                </Button>
                 <Button variant="contained" size="small" onClick={() => handleEdit(item.id)}>
                   <EditIcon />
                 </Button>
@@ -158,7 +182,7 @@ function NoteWidget() {
               </div>
             </div>
 
-            <div dangerouslySetInnerHTML={{ __html: item.text }} />
+            <div className="note-text" dangerouslySetInnerHTML={{ __html: item.text }} />
 
           </div>
         ))}
