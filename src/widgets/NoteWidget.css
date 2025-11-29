@@ -18,7 +18,7 @@
   justify-content: space-between;
   align-items: center;
   margin-left: 1em;
-  margin-right: 1em;
+  margin-right: 1.8em;
   font-weight: bold;
 }
 
@@ -114,4 +114,28 @@
 }
 .rsw-ce {
   height: 300px;
+}
+
+
+@media only screen and (max-width: 1000px) {
+
+.note-header {
+  flex-direction: column;
+  align-items: flex-start;
+}
+.note-header h2 {
+  margin-top: 1.5em;
+  max-width: 100%; 
+}
+.note-buttons button {
+  font-size: 70%;
+}
+.note-text {
+  margin-top: 1em;
+}
+.notes-list {
+  max-height: 1000px;
+}
+
+
 }

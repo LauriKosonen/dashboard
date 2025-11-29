@@ -1,6 +1,10 @@
+
+
 body, html, #root {
   height: 100%;
   margin: 0;
+  font-family: 'Roboto', sans-serif;
+  font-size: 105%;
 }
 
 .dashboard {
@@ -46,23 +50,36 @@ body, html, #root {
 }
 
 /*Medium size*/
+/*Uudet kuvat*/
 @media only screen and (max-width: 1000px) {
   .grid {
     grid-template-columns: 1fr 1fr;
     grid-template-rows: 3fr 2fr;
     grid-template-areas:
-      "notes notes"
-      "calendar weather";
+      "notes calendar"
+      "notes weather";
   }
 }
 /*Small size*/
 @media only screen and (max-width: 770px) {
-  .grid {
-    grid-template-columns: 1fr;
-    grid-template-rows: 3fr 2fr 1fr;
-    grid-template-areas:
-      "notes"
-      "calendar"
-      "weather";
+  .mobile-grid {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .calendar-weather-container {
+    display: grid;
+    grid-template-rows: 1fr 1fr;
+    gap: 0.5rem;
+    height: calc(100vh - 64px - 48px);
+  }
+
+  .mobile-calendar,
+  .mobile-weather {
+    padding: 0.5rem;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    overflow: visible;
   }
 }

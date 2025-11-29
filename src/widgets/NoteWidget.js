@@ -47,7 +47,7 @@ function NoteWidget() {
   }
   else {
   // add item to items, Math.random() is used to generate "unique" ID...
-  setItems([...items, {id: Math.random(), title: itemTitle, text: itemText, favorite: false}])
+  setItems([...items, {id: Math.random(), title: itemTitle, text: itemText, favorite: false, created: Date.now()}])
   }
   // modify newItem text to ""
   setItemTitle("");
@@ -157,7 +157,7 @@ function NoteWidget() {
             if (a.favorite !== b.favorite) {
               return a.favorite ? -1 : 1; // favorites first
             }
-            return b.id - a.id; // newest first
+            return b.created - a.created; // rest are sorted based on creation date
           })
           .map(item => (
           <div className="note" key={item.id}>

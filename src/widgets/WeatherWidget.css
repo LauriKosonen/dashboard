@@ -1,6 +1,5 @@
 .weather-widget {
   grid-area: weather;
-  background-image: linear-gradient(to bottom right, rgb(1, 149, 255), rgb(95, 161, 254));
   border-radius: 8px;
   box-shadow: 0 2px 5px rgba(0,0,0,0.1);
   display: flex;
@@ -15,6 +14,14 @@
   font-size: 400%;
   margin: 0;
   padding: 0;
+}
+
+.weather-clear {
+  background-image: linear-gradient(to bottom right, rgb(98, 158, 200), rgb(72, 138, 232));
+}
+
+.weather-cloudy {
+  background-image: linear-gradient(to bottom right, #869ccf, #8b9bad);
 }
 
 .weather-forecast {

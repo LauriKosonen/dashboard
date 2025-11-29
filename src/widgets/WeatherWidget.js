@@ -39,8 +39,26 @@ function WeatherWidget() {
   }
 };
 
+//background change for the widget based on current weather
+  const getBackgroundClass = () => {
+    if (!weather) return "weather-clear"; //default
+
+    const condition = weather.weather[0].main.toLowerCase();
+
+    if (
+     condition.includes("clear") ||
+     (condition.includes("clouds") && weather.weather[0].description.includes("few"))) 
+      return "weather-clear";
+
+
+    if (condition.includes("clouds") || condition.includes("rain"))
+      return "weather-cloudy";
+
+    return "weather-clear";
+  };
+
   return (
-    <div className="weather-widget">
+    <div className={`weather-widget ${getBackgroundClass()}`}>
       {/*search*/}
       <form 
         className="weather-search" 
