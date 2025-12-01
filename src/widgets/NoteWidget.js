@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react'; //added useEffect for firestore note saving
 import "./NoteWidget.css";
 import Modal from '@mui/material/Modal';
 import Box from '@mui/material/Box';
@@ -18,12 +18,43 @@ import {
   BtnNumberedList
 } from "react-simple-wysiwyg";
 
+//imported firestore functions
+import { collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, query, orderBy } from 'firebase/firestore';
 
-function NoteWidget() {
+
+function NoteWidget({db}) { //added db prop for firestore functionality
+  console.log(db);
   const [itemTitle, setItemTitle] = useState("");
   const [itemText, setItemText] = useState("");
-  const [items, setItems] = useState([]);
+  const [items, setItems] = useState([]); //this will now be populated by firestore
   const [editingId, setEditingId] = useState(null);
+  const [showForm, setShowForm] = useState(false);
+
+  // --- Real-time Listener for Notes ---
+  useEffect(() => {
+    if (!db) return; // Ensure db is available
+
+    // Create a query to get notes, ordered by favorite status (true first), then by creation date (newest first)
+    const q = query(
+      collection(db, "notes"),
+      orderBy("favorite", "desc"),
+      orderBy("created", "desc")
+    );
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const notesData = snapshot.docs.map(document => ({
+        id: document.id, // Firestore provides the document ID
+        ...document.data() // Get all fields from the document
+      }));
+      setItems(notesData); // Update local state with Firestore data
+    }, (error) => {
+      console.error("Error fetching notes:", error);
+      // Handle error, e.g., show a message to the user
+    });
+
+    // Cleanup subscription on component unmount
+    return () => unsubscribe();
+  }, [db]); // Re-run if the 'db' instance changes (though it likely won't)
 
   
   const handleOpen = () => setShowForm(true);
@@ -31,52 +62,77 @@ function NoteWidget() {
     setShowForm(false);
     setItemTitle("");
     setItemText("");
+    setEditingId(null); // Clear editing state on close
   };
 
-  const [showForm, setShowForm] = useState(false);
+  // --- Handle Form Submission (Add or Update Note) ---
+  const handleSubmit = async (event) => { // Make this an async function
+    event.preventDefault();
 
-  // add a new item 
-  const handleSubmit = (event) => {
-  // prevent normal submit event
-  event.preventDefault();
-
-  if (editingId) {
-    setItems(items.map(item => 
-      item.id === editingId ? { ...item, title: itemTitle, text: itemText } : item
-    ));
-  }
-  else {
-  // add item to items, Math.random() is used to generate "unique" ID...
-  setItems([...items, {id: Math.random(), title: itemTitle, text: itemText, favorite: false, created: Date.now()}])
-  }
-  // modify newItem text to ""
-  setItemTitle("");
-  setItemText("");
-  setEditingId(null);
-  setShowForm(false);
+    try {
+      if (editingId) {
+        // Update existing document in Firestore
+        const noteRef = doc(db, "notes", editingId);
+        await updateDoc(noteRef, {
+          title: itemTitle,
+          text: itemText,
+          // 'favorite' and 'created' will remain as they were unless explicitly updated here
+        });
+      } else {
+        // Add new document to Firestore
+        await addDoc(collection(db, "notes"), {
+          title: itemTitle,
+          text: itemText,
+          favorite: false, // New notes start as not favorite
+          created: Date.now(), // Timestamp for new note
+          // You could also add a userId here if you implement authentication
+        });
+      }
+      // Clear form and close modal after successful operation
+      setItemTitle("");
+      setItemText("");
+      setEditingId(null);
+      setShowForm(false);
+    } catch (error) {
+      console.error("Error saving note:", error);
+      // You might want to display a user-friendly error message here
+    }
   };
 
+  // --- Handle Edit Button Click ---
   const handleEdit = (id) => {
-  const note = items.find(item => item.id === id);
-  if (note) {
-    setItemTitle(note.title);
-    setItemText(note.text);
-    setEditingId(id);
-    setShowForm(true);
-  }
-};
-
-  const removeItem = (id) => {
-    setItems(items.filter(item => item.id !== id));
+    const note = items.find(item => item.id === id);
+    if (note) {
+      setItemTitle(note.title);
+      setItemText(note.text);
+      setEditingId(id);
+      setShowForm(true);
+    }
   };
 
-  const toggleFavorite = (id) => {
-  setItems(prev =>
-    prev.map(item =>
-      item.id === id ? { ...item, favorite: !item.favorite } : item
-    )
-  );
-};
+  // --- Remove Note ---
+  const removeItem = async (id) => { // Make this an async function
+    try {
+      await deleteDoc(doc(db, "notes", id)); // Delete document from Firestore
+    } catch (error) {
+      console.error("Error removing note:", error);
+    }
+  };
+
+  // --- Toggle Favorite Status ---
+  const toggleFavorite = async (id) => { // Make this an async function
+    const noteToToggle = items.find(item => item.id === id);
+    if (noteToToggle) {
+      try {
+        const noteRef = doc(db, "notes", id);
+        await updateDoc(noteRef, {
+          favorite: !noteToToggle.favorite // Toggle the favorite status
+        });
+      } catch (error) {
+        console.error("Error toggling favorite:", error);
+      }
+    }
+  };
 
   
   return (
@@ -140,7 +196,7 @@ function NoteWidget() {
 
               <div style={{ display: "flex", gap: "10px", marginTop: "15px" }}>
                 <Button variant="contained" type="submit">
-                  Add
+                  {editingId ? "Update" : "Add"}
                 </Button>
                 <Button variant="outlined" onClick={handleClose}>
                   Cancel
@@ -150,16 +206,11 @@ function NoteWidget() {
           </Box>
         </Modal>
 
+
       {/* Notes list */}
       <div className="notes-list">
-        {[...items]
-          .sort((a, b) => {
-            if (a.favorite !== b.favorite) {
-              return a.favorite ? -1 : 1; // favorites first
-            }
-            return b.created - a.created; // rest are sorted based on creation date
-          })
-          .map(item => (
+        {/* Sorting is now handled by the Firestore query in useEffect, so we just map 'items' */}
+        {items.map(item => (
           <div className="note" key={item.id}>
 
             <div className="note-header">
