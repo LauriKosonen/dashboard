@@ -80,7 +80,10 @@ function WeatherWidget() {
           color="white" 
           size="small" 
           onClick={getWeather}
-          sx={{padding: 1.9}}
+          sx={{padding: 1.9,
+            "& svg": { transition: "transform 0.15s ease" },
+            "&:hover svg": { transform: "scale(1.2)" }
+          }}
         >
           <SearchIcon />
         </Button>

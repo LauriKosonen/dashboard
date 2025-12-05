@@ -112,6 +112,15 @@
   font-size: 1.2rem;
   height: 2.7em;
 }
+
+.note-buttons button svg {
+  transition: transform 0.15s ease;
+}
+
+.note-buttons button:hover svg {
+  transform: scale(1.2);
+}
+
 .rsw-ce {
   height: 300px;
 }

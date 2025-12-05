@@ -18,6 +18,9 @@ import {
   BtnNumberedList
 } from "react-simple-wysiwyg";
 
+import DOMPurify from "dompurify";
+import parse from "html-react-parser";
+
 //imported firestore functions
 import { collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, query, orderBy } from 'firebase/firestore';
 
@@ -147,7 +150,10 @@ function NoteWidget({db}) { //added db prop for firestore functionality
           color="primary"
           size="small"
           onClick={handleOpen}
-          sx={{ padding: 1.9 }}
+          sx={{ padding: 1.9,
+            "& svg": { transition: "transform 0.15s ease" },
+            "&:hover svg": { transform: "scale(1.2)" }
+           }}
         >
           <AddIcon />
         </Button>
@@ -233,7 +239,9 @@ function NoteWidget({db}) { //added db prop for firestore functionality
               </div>
             </div>
 
-            <div className="note-text" dangerouslySetInnerHTML={{ __html: item.text }} />
+            <div className="note-text">
+              {parse(DOMPurify.sanitize(item.text))}
+            </div>
 
           </div>
         ))}
