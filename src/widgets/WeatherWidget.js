@@ -73,6 +73,7 @@ function WeatherWidget() {
           value={cityname}
           onChange={(e) => setCityname(e.target.value)}
           className="textfield"
+          autoComplete="off"
         />
 
         <Button 

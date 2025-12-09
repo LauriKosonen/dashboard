@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'; //added useEffect for firestore note saving
+import React, { useState, useEffect } from 'react';
 import "./NoteWidget.css";
 import Modal from '@mui/material/Modal';
 import Box from '@mui/material/Box';
@@ -7,6 +7,10 @@ import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import FavoriteIcon from '@mui/icons-material/Favorite';
+import dayjs from "dayjs";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import {
   EditorProvider,
   Editor,
@@ -22,63 +26,73 @@ import DOMPurify from "dompurify";
 import parse from "html-react-parser";
 
 //imported firestore functions
-import { collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, query, orderBy } from 'firebase/firestore';
+import { collection, addDoc, updateDoc, deleteDoc, doc } from 'firebase/firestore';
 
 
-function NoteWidget({db}) { //added db prop for firestore functionality
-  console.log(db);
+// NoteWidget now accepts 'items', 'noteToOpenId', and 'setNoteToOpenId' as props
+function NoteWidget({db, items, noteToOpenId, setNoteToOpenId}) {
   const [itemTitle, setItemTitle] = useState("");
   const [itemText, setItemText] = useState("");
-  const [items, setItems] = useState([]); //this will now be populated by firestore
   const [editingId, setEditingId] = useState(null);
   const [showForm, setShowForm] = useState(false);
+  const [noteDate, setNoteDate] = useState(null); // Changed to null as default for new notes
 
-  // --- Real-time Listener for Notes ---
+  // NEW: State to explicitly control the DatePicker's open/close state
+  const [isPickerOpen, setIsPickerOpen] = useState(false);
+
+
+  // Effect to handle opening a note when noteToOpenId changes (triggered from CalendarWidget)
   useEffect(() => {
-    if (!db) return; // Ensure db is available
+    if (noteToOpenId && items.length > 0) {
+      const noteToEdit = items.find(item => item.id === noteToOpenId);
+      if (noteToEdit) {
+        setItemTitle(noteToEdit.title);
+        setItemText(noteToEdit.text);
+        setEditingId(noteToOpenId);
+        // If noteToEdit.date exists, convert it to dayjs object, otherwise set to null
+        setNoteDate(noteToEdit.date ? dayjs(noteToEdit.date) : null);
+        setShowForm(true); // Open the modal
+      }
+      // Clear noteToOpenId after handling to prevent re-opening if state updates
+      setNoteToOpenId(null); // IMPORTANT: Reset noteToOpenId after it's handled
+    }
+  }, [noteToOpenId, items, setNoteToOpenId]); // Dependencies for this effect
 
-    // Create a query to get notes, ordered by favorite status (true first), then by creation date (newest first)
-    const q = query(
-      collection(db, "notes"),
-      orderBy("favorite", "desc"),
-      orderBy("created", "desc")
-    );
+  // --- Handle opening the note creation/edit form ---
+  const handleOpen = () => {
+    // When opening for a new note, ensure all fields are cleared and date is null
+    setItemTitle("");
+    setItemText("");
+    setEditingId(null);
+    setNoteDate(null); // Explicitly set to null for new notes
+    setShowForm(true);
+  };
 
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const notesData = snapshot.docs.map(document => ({
-        id: document.id, // Firestore provides the document ID
-        ...document.data() // Get all fields from the document
-      }));
-      setItems(notesData); // Update local state with Firestore data
-    }, (error) => {
-      console.error("Error fetching notes:", error);
-      // Handle error, e.g., show a message to the user
-    });
-
-    // Cleanup subscription on component unmount
-    return () => unsubscribe();
-  }, [db]); // Re-run if the 'db' instance changes (though it likely won't)
-
-  
-  const handleOpen = () => setShowForm(true);
+  // --- Handle closing the note creation/edit form ---
   const handleClose = () => {
     setShowForm(false);
     setItemTitle("");
     setItemText("");
     setEditingId(null); // Clear editing state on close
+    setNoteDate(null); // Reset the date to null when closing
+    setIsPickerOpen(false); // Also close the picker if it was open
   };
 
   // --- Handle Form Submission (Add or Update Note) ---
-  const handleSubmit = async (event) => { // Make this an async function
+  const handleSubmit = async (event) => {
     event.preventDefault();
 
     try {
+      // Determine the date value to save: if noteDate is a valid dayjs object, convert to ISO string; otherwise, null
+      const dateToSave = noteDate && noteDate.isValid() ? noteDate.toISOString() : null;
+
       if (editingId) {
         // Update existing document in Firestore
         const noteRef = doc(db, "notes", editingId);
         await updateDoc(noteRef, {
           title: itemTitle,
           text: itemText,
+          date: dateToSave // Use the determined date value
           // 'favorite' and 'created' will remain as they were unless explicitly updated here
         });
       } else {
@@ -88,6 +102,7 @@ function NoteWidget({db}) { //added db prop for firestore functionality
           text: itemText,
           favorite: false, // New notes start as not favorite
           created: Date.now(), // Timestamp for new note
+          date: dateToSave // Use the determined date value
           // You could also add a userId here if you implement authentication
         });
       }
@@ -96,6 +111,7 @@ function NoteWidget({db}) { //added db prop for firestore functionality
       setItemText("");
       setEditingId(null);
       setShowForm(false);
+      setNoteDate(null); // Reset date to null after submission
     } catch (error) {
       console.error("Error saving note:", error);
       // You might want to display a user-friendly error message here
@@ -110,6 +126,8 @@ function NoteWidget({db}) { //added db prop for firestore functionality
       setItemText(note.text);
       setEditingId(id);
       setShowForm(true);
+      // Set noteDate based on the existing note's date, handling potentially null dates
+      setNoteDate(note.date ? dayjs(note.date) : null); // Ensure the date picker shows the correct date
     }
   };
 
@@ -117,6 +135,7 @@ function NoteWidget({db}) { //added db prop for firestore functionality
   const removeItem = async (id) => { // Make this an async function
     try {
       await deleteDoc(doc(db, "notes", id)); // Delete document from Firestore
+      handleClose(); // Close the modal after successful deletion
     } catch (error) {
       console.error("Error removing note:", error);
     }
@@ -137,7 +156,6 @@ function NoteWidget({db}) { //added db prop for firestore functionality
     }
   };
 
-  
   return (
     <div className="note-widget">
       <div className="note-widget-header">
@@ -159,8 +177,8 @@ function NoteWidget({db}) { //added db prop for firestore functionality
         </Button>
       )}
       </div>
-      
-      {/* Modal */}
+
+      {/* Modal for creating/editing notes */}
         <Modal open={showForm} onClose={handleClose}>
           <Box
             sx={{
@@ -200,6 +218,27 @@ function NoteWidget({db}) { //added db prop for firestore functionality
                 </Editor>
               </EditorProvider>
 
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <DatePicker
+                  label="Note Date (Optional)" // Indicate to the user that it's optional
+                  value={noteDate}
+                  onChange={(newValue) => setNoteDate(newValue)}
+                  format="DD.MM.YYYY" // Set the desired display format
+                  readOnly // This prevents typing directly into the field
+                  open={isPickerOpen} // Control the open state
+                  onOpen={() => setIsPickerOpen(true)}
+                  onClose={() => setIsPickerOpen(false)}
+                  slotProps={{
+                    field: {
+                      clearable: true,
+                      onClear: () => setNoteDate(null),
+                      onClick: () => setIsPickerOpen(true), // Explicitly open picker on field click
+                    },
+                  }}
+                  sx={{ marginTop: 2 }}
+                />
+              </LocalizationProvider>
+
               <div style={{ display: "flex", gap: "10px", marginTop: "15px" }}>
                 <Button variant="contained" type="submit">
                   {editingId ? "Update" : "Add"}
@@ -207,6 +246,18 @@ function NoteWidget({db}) { //added db prop for firestore functionality
                 <Button variant="outlined" onClick={handleClose}>
                   Cancel
                 </Button>
+                {/* Delete button, visible only when editing an existing note */}
+                {editingId && (
+                  <Button
+                    variant="contained"
+                    color="error" // Use error color for delete actions
+                    onClick={() => removeItem(editingId)} // Call removeItem with the current editingId
+                    startIcon={<DeleteIcon />} 
+                    sx={{ marginLeft: 'auto' }} 
+                  >
+                    Delete
+                  </Button>
+                )}
               </div>
             </form>
           </Box>
@@ -215,7 +266,6 @@ function NoteWidget({db}) { //added db prop for firestore functionality
 
       {/* Notes list */}
       <div className="notes-list">
-        {/* Sorting is now handled by the Firestore query in useEffect, so we just map 'items' */}
         {items.map(item => (
           <div className="note" key={item.id}>
 
