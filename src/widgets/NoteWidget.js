@@ -5,8 +5,8 @@ import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
-import FavoriteIcon from '@mui/icons-material/Favorite';
+import DeleteIcon from '@mui/icons-material/Delete'; // Import DeleteIcon
+import FavoriteIcon from '@mui/icons-material/Favorite'; // Corrected import
 import dayjs from "dayjs";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
@@ -33,13 +33,10 @@ import { collection, addDoc, updateDoc, deleteDoc, doc } from 'firebase/firestor
 function NoteWidget({db, items, noteToOpenId, setNoteToOpenId}) {
   const [itemTitle, setItemTitle] = useState("");
   const [itemText, setItemText] = useState("");
+  // `items` state is now managed in App.js
   const [editingId, setEditingId] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const [noteDate, setNoteDate] = useState(null); // Changed to null as default for new notes
-
-  // NEW: State to explicitly control the DatePicker's open/close state
-  const [isPickerOpen, setIsPickerOpen] = useState(false);
-
 
   // Effect to handle opening a note when noteToOpenId changes (triggered from CalendarWidget)
   useEffect(() => {
@@ -75,7 +72,6 @@ function NoteWidget({db, items, noteToOpenId, setNoteToOpenId}) {
     setItemText("");
     setEditingId(null); // Clear editing state on close
     setNoteDate(null); // Reset the date to null when closing
-    setIsPickerOpen(false); // Also close the picker if it was open
   };
 
   // --- Handle Form Submission (Add or Update Note) ---
@@ -135,7 +131,7 @@ function NoteWidget({db, items, noteToOpenId, setNoteToOpenId}) {
   const removeItem = async (id) => { // Make this an async function
     try {
       await deleteDoc(doc(db, "notes", id)); // Delete document from Firestore
-      handleClose(); // Close the modal after successful deletion
+      handleClose(); // Close the modal after deletion
     } catch (error) {
       console.error("Error removing note:", error);
     }
@@ -220,22 +216,17 @@ function NoteWidget({db, items, noteToOpenId, setNoteToOpenId}) {
 
               <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <DatePicker
+                  sx={{ mt: 2 }}
                   label="Note Date (Optional)" // Indicate to the user that it's optional
                   value={noteDate}
                   onChange={(newValue) => setNoteDate(newValue)}
                   format="DD.MM.YYYY" // Set the desired display format
-                  readOnly // This prevents typing directly into the field
-                  open={isPickerOpen} // Control the open state
-                  onOpen={() => setIsPickerOpen(true)}
-                  onClose={() => setIsPickerOpen(false)}
                   slotProps={{
                     field: {
-                      clearable: true,
+                      clearable: true, // This is where the clearable prop now lives
                       onClear: () => setNoteDate(null),
-                      onClick: () => setIsPickerOpen(true), // Explicitly open picker on field click
                     },
                   }}
-                  sx={{ marginTop: 2 }}
                 />
               </LocalizationProvider>
 
@@ -252,8 +243,8 @@ function NoteWidget({db, items, noteToOpenId, setNoteToOpenId}) {
                     variant="contained"
                     color="error" // Use error color for delete actions
                     onClick={() => removeItem(editingId)} // Call removeItem with the current editingId
-                    startIcon={<DeleteIcon />} 
-                    sx={{ marginLeft: 'auto' }} 
+                    startIcon={<DeleteIcon />} // Add a delete icon
+                    sx={{ marginLeft: 'auto' }} // Push to the right
                   >
                     Delete
                   </Button>
