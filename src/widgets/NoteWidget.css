@@ -27,10 +27,10 @@
 }
 
 .notes-list {
-  flex: 1 1 auto;      /* grow/shrink and take remaining space */
-  min-height: 0;       /* CRITICAL: allow flex child to be smaller */
-  overflow-y: auto;    /* show vertical scrollbar when needed */
-  padding-right: 6px;  /* avoid overlap with scrollbar */
+  flex: 1 1 auto;  
+  min-height: 0; 
+  overflow-y: auto; 
+  padding-right: 6px; 
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -86,7 +86,7 @@
 }
 
 .note-header h2 {
-  max-width: calc(100% - 10em); /*max width reduced to avoid overlap with buttons*/
+  max-width: calc(100% - 10em); 
   margin: 0;
   white-space: normal;
   overflow-wrap: break-word;

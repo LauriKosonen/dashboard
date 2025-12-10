@@ -11,9 +11,9 @@ import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import Box from '@mui/material/Box';
 
-// Import the functions you need from the SDKs you need
+
 import { initializeApp } from "firebase/app";
-import { getFirestore, collection, onSnapshot, query, orderBy } from "firebase/firestore"; // Import Firestore functions
+import { getFirestore, collection, onSnapshot, query, orderBy } from "firebase/firestore";
 
 
 // Your web app's Firebase configuration

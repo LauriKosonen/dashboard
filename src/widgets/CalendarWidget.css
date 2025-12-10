@@ -1,3 +1,12 @@
 .calendar-widget {
   grid-area: calendar;
+
+}
+
+.MuiBadge-dot {
+  width: 8px !important;
+  height: 8px !important;
+  min-width: 0 !important;
+  border-radius: 50% !important;
+  padding: 0 !important;
 }

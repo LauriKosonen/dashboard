@@ -5,8 +5,8 @@ import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete'; // Import DeleteIcon
-import FavoriteIcon from '@mui/icons-material/Favorite'; // Corrected import
+import DeleteIcon from '@mui/icons-material/Delete';
+import FavoriteIcon from '@mui/icons-material/Favorite';
 import dayjs from "dayjs";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
@@ -53,15 +53,14 @@ function NoteWidget({db, items, noteToOpenId, setNoteToOpenId}) {
       // Clear noteToOpenId after handling to prevent re-opening if state updates
       setNoteToOpenId(null); // IMPORTANT: Reset noteToOpenId after it's handled
     }
-  }, [noteToOpenId, items, setNoteToOpenId]); // Dependencies for this effect
+  }, [noteToOpenId, items, setNoteToOpenId]);
 
   // --- Handle opening the note creation/edit form ---
   const handleOpen = () => {
-    // When opening for a new note, ensure all fields are cleared and date is null
     setItemTitle("");
     setItemText("");
     setEditingId(null);
-    setNoteDate(null); // Explicitly set to null for new notes
+    setNoteDate(null);
     setShowForm(true);
   };
 
@@ -70,8 +69,8 @@ function NoteWidget({db, items, noteToOpenId, setNoteToOpenId}) {
     setShowForm(false);
     setItemTitle("");
     setItemText("");
-    setEditingId(null); // Clear editing state on close
-    setNoteDate(null); // Reset the date to null when closing
+    setEditingId(null);
+    setNoteDate(null);
   };
 
   // --- Handle Form Submission (Add or Update Note) ---
@@ -88,17 +87,16 @@ function NoteWidget({db, items, noteToOpenId, setNoteToOpenId}) {
         await updateDoc(noteRef, {
           title: itemTitle,
           text: itemText,
-          date: dateToSave // Use the determined date value
-          // 'favorite' and 'created' will remain as they were unless explicitly updated here
+          date: dateToSave
         });
       } else {
         // Add new document to Firestore
         await addDoc(collection(db, "notes"), {
           title: itemTitle,
           text: itemText,
-          favorite: false, // New notes start as not favorite
-          created: Date.now(), // Timestamp for new note
-          date: dateToSave // Use the determined date value
+          favorite: false, 
+          created: Date.now(),
+          date: dateToSave 
           // You could also add a userId here if you implement authentication
         });
       }
@@ -107,10 +105,9 @@ function NoteWidget({db, items, noteToOpenId, setNoteToOpenId}) {
       setItemText("");
       setEditingId(null);
       setShowForm(false);
-      setNoteDate(null); // Reset date to null after submission
+      setNoteDate(null); 
     } catch (error) {
       console.error("Error saving note:", error);
-      // You might want to display a user-friendly error message here
     }
   };
 
@@ -122,13 +119,12 @@ function NoteWidget({db, items, noteToOpenId, setNoteToOpenId}) {
       setItemText(note.text);
       setEditingId(id);
       setShowForm(true);
-      // Set noteDate based on the existing note's date, handling potentially null dates
-      setNoteDate(note.date ? dayjs(note.date) : null); // Ensure the date picker shows the correct date
+      setNoteDate(note.date ? dayjs(note.date) : null);
     }
   };
 
   // --- Remove Note ---
-  const removeItem = async (id) => { // Make this an async function
+  const removeItem = async (id) => {
     try {
       await deleteDoc(doc(db, "notes", id)); // Delete document from Firestore
       handleClose(); // Close the modal after deletion
@@ -138,7 +134,7 @@ function NoteWidget({db, items, noteToOpenId, setNoteToOpenId}) {
   };
 
   // --- Toggle Favorite Status ---
-  const toggleFavorite = async (id) => { // Make this an async function
+  const toggleFavorite = async (id) => {
     const noteToToggle = items.find(item => item.id === id);
     if (noteToToggle) {
       try {
