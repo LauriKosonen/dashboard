@@ -5,19 +5,24 @@ import NoteWidget from "./widgets/NoteWidget";
 import CalendarWidget from "./widgets/CalendarWidget";
 import WeatherWidget from "./widgets/WeatherWidget";
 
-// import dayjs from "dayjs";
-
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import Box from '@mui/material/Box';
-
+import Button from '@mui/material/Button';
+import Modal from "@mui/material/Modal";
+import TextField from "@mui/material/TextField";
 
 import { initializeApp } from "firebase/app";
 import { getFirestore, collection, onSnapshot, query, orderBy } from "firebase/firestore";
+import { 
+  getAuth, 
+  signInWithEmailAndPassword, 
+  createUserWithEmailAndPassword, 
+  signInAnonymously, 
+  onAuthStateChanged 
+} from "firebase/auth";
 
-
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+// Firebase configuration
 const firebaseConfig = {
   apiKey: "AIzaSyBw_KZ1DHKOCzvvrAuKRMJK2KT6mCusuxE",
   authDomain: "dashboard-d948f.firebaseapp.com",
@@ -31,22 +36,42 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+const auth = getAuth(app);
 
 function App() {
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 1000);
   const [tabIndex, setTabIndex] = useState(0);
-  const [items, setItems] = useState([]); // Notes data from Firestore
-  const [noteToOpenId, setNoteToOpenId] = useState(null); // New state to trigger opening a specific note
+  const [items, setItems] = useState([]); 
+  const [noteToOpenId, setNoteToOpenId] = useState(null);
 
-  // Effect for handling window resize (existing)
+  const [user, setUser] = useState(null); // Current user
+  const [authModalOpen, setAuthModalOpen] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [isLogin, setIsLogin] = useState(true);
+
+  // Window resize
   useEffect(() => {
     const onResize = () => setIsMobile(window.innerWidth <= 1000);
     window.addEventListener("resize", onResize);
     return () => window.removeEventListener("resize", onResize);
   }, []);
 
-  // Real-time Listener for Notes (moved here from NoteWidget)
+  // Auth state listener
   useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  // Firestore notes listener (only for logged in users)
+  useEffect(() => {
+    if (!user || user.isAnonymous) {
+      setItems([]); // Guests see no notes
+      return;
+    }
+
     const q = query(
       collection(db, "notes"),
       orderBy("favorite", "desc"),
@@ -54,37 +79,137 @@ function App() {
     );
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      const notesData = snapshot.docs.map(document => ({
-        id: document.id,
-        ...document.data()
-      }));
+      const notesData = snapshot.docs
+        .map(doc => ({ id: doc.id, ...doc.data() }))
+        .filter(note => note.uid === user.uid); // Only current user's notes
       setItems(notesData);
-    }, (error) => {
-      console.error("Error fetching notes:", error);
-      // Handle error appropriately, e.g., show a user notification
     });
 
-    // Cleanup subscription on component unmount
     return () => unsubscribe();
-  }, []); // Empty dependency array means this runs once on mount
+  }, [user]);
 
-  const handleTabChange = (event, newIndex) => {
-    setTabIndex(newIndex);
-  };
+  const handleTabChange = (event, newIndex) => setTabIndex(newIndex);
 
-  // Handler for when a day with a note is clicked on the calendar
   const handleCalendarNoteClick = (noteId) => {
     setNoteToOpenId(noteId);
-    // If on mobile and currently on the calendar tab, switch to the Notes tab
-    if (isMobile && tabIndex !== 0) {
-      setTabIndex(0);
-    }
+    if (isMobile && tabIndex !== 0) setTabIndex(0);
   };
 
   return (
     <div className="dashboard">
-      {/* Header is always visible */}
-      <header className="header">Dashboard</header>
+      {/* Header */}
+      <header className="header">
+        Dashboard
+        <div className="authentication-buttons">
+          {!user && (
+            <>
+              <Button
+                variant="outlined"
+                size="small"
+                sx={{
+                  color: "white",
+                  borderColor: "white",
+                  "&:hover": {
+                    backgroundColor: "rgba(255,255,255,0.1)",
+                    borderColor: "white"
+                  },
+                  padding: "0.3rem 0.6rem",
+                  margin: "0.5em",
+                }}
+                onClick={() => { setIsLogin(true); setAuthModalOpen(true); }}
+              >
+                Log in
+              </Button>
+              <Button
+                variant="contained"
+                size="large"
+                sx={{
+                  padding: "4px 8px",
+                  margin: "0.5em",
+                  "& svg": { transition: "transform 0.15s ease" },
+                  "&:hover svg": { transform: "scale(1.2)" }
+                }}
+                onClick={() => { setIsLogin(false); setAuthModalOpen(true); }}
+              >
+                Sign up
+              </Button>
+            </>
+          )}
+          {user && (
+            <span style={{ marginLeft: '1em' }}>
+              Welcome, {user.isAnonymous ? "Guest" : user.email}
+            </span>
+          )}
+        </div>
+      </header>
+
+      {/* Auth Modal */}
+      <Modal open={authModalOpen} onClose={() => setAuthModalOpen(false)}>
+        <Box sx={{
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          width: 300,
+          bgcolor: "background.paper",
+          p: 4,
+          borderRadius: 2
+        }}>
+          <h2>{isLogin ? "Log In" : "Sign Up"}</h2>
+          <TextField
+            fullWidth
+            label="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            sx={{ mb: 2 }}
+          />
+          <TextField
+            fullWidth
+            label="Password"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            sx={{ mb: 2 }}
+          />
+          <Button
+            variant="contained"
+            fullWidth
+            onClick={async () => {
+              try {
+                if (isLogin) {
+                  await signInWithEmailAndPassword(auth, email, password);
+                } else {
+                  await createUserWithEmailAndPassword(auth, email, password);
+                }
+                setAuthModalOpen(false);
+                setEmail(""); setPassword("");
+              } catch (error) {
+                console.error(error);
+                alert(error.message);
+              }
+            }}
+          >
+            {isLogin ? "Log In" : "Sign Up"}
+          </Button>
+          <Button
+            fullWidth
+            sx={{ mt: 1 }}
+            onClick={() => setIsLogin(!isLogin)}
+          >
+            {isLogin ? "Switch to Sign Up" : "Switch to Log In"}
+          </Button>
+          <Button
+            fullWidth
+            sx={{ mt: 1 }}
+            onClick={async () => {
+              await signInAnonymously(auth);
+              setAuthModalOpen(false);
+            }}
+          >
+            Continue as Guest
+          </Button>
+        </Box>
+      </Modal>
 
       {/* Desktop grid */}
       {!isMobile && (
@@ -94,23 +219,23 @@ function App() {
               db={db}
               items={items}
               noteToOpenId={noteToOpenId}
-              setNoteToOpenId={setNoteToOpenId} // Pass the setter to allow NoteWidget to clear it
+              setNoteToOpenId={setNoteToOpenId}
+              user={user} // Pass user to NoteWidget
             />
           </div>
           <div className="widget calendar-widget">
             <CalendarWidget
               notes={items}
-              onNoteDateClick={handleCalendarNoteClick} // Pass the handler
+              onNoteDateClick={handleCalendarNoteClick}
             />
           </div>
           <div className="weather-widget"><WeatherWidget /></div>
         </main>
       )}
 
-      {/* Mobile tabs with grid layout */}
+      {/* Mobile tabs */}
       {isMobile && (
         <Box className="mobile-grid">
-          {/* Tabs */}
           <Tabs
             value={tabIndex}
             onChange={handleTabChange}
@@ -123,7 +248,6 @@ function App() {
             <Tab label="Calendar & Weather" />
           </Tabs>
 
-          {/* Notes Tab */}
           {tabIndex === 0 && (
             <div className="notes-widget" style={{ overflowY: "auto", flex: 1 }}>
               <NoteWidget
@@ -131,11 +255,11 @@ function App() {
                 items={items}
                 noteToOpenId={noteToOpenId}
                 setNoteToOpenId={setNoteToOpenId}
+                user={user}
               />
             </div>
           )}
 
-          {/* Calendar & Weather Tab */}
           {tabIndex === 1 && (
             <div className="calendar-weather-container">
               <div className="mobile-calendar">
