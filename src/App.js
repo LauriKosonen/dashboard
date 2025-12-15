@@ -50,13 +50,6 @@ function App() {
   const [password, setPassword] = useState("");
   const [isLogin, setIsLogin] = useState(true);
 
-  // Window resize
-  useEffect(() => {
-    const onResize = () => setIsMobile(window.innerWidth <= 1000);
-    window.addEventListener("resize", onResize);
-    return () => window.removeEventListener("resize", onResize);
-  }, []);
-
   // Auth state listener
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -65,10 +58,18 @@ function App() {
     return () => unsubscribe();
   }, []);
 
-  // Firestore notes listener (only for logged in users)
+  // Window resize
+  useEffect(() => {
+    const onResize = () => setIsMobile(window.innerWidth <= 1000);
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
+
+
+  // Firestore notes listener
   useEffect(() => {
     if (!user || user.isAnonymous) {
-      setItems([]); // Guests see no notes
+      setItems([]); // No notes are visible by default
       return;
     }
 
@@ -135,11 +136,11 @@ function App() {
               </Button>
             </>
           )}
-          {user && (
+          {/* {user && (
             <span style={{ marginLeft: '1em' }}>
               Welcome, {user.isAnonymous ? "Guest" : user.email}
             </span>
-          )}
+          )} */}
         </div>
       </header>
 
