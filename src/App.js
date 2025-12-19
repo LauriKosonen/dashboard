@@ -12,6 +12,10 @@ import Button from '@mui/material/Button';
 import Modal from "@mui/material/Modal";
 import TextField from "@mui/material/TextField";
 
+import Menu from "@mui/material/Menu";
+import MenuItem from "@mui/material/MenuItem";
+import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
+
 import { initializeApp } from "firebase/app";
 import { getFirestore, collection, onSnapshot, query, orderBy } from "firebase/firestore";
 import { 
@@ -19,7 +23,8 @@ import {
   signInWithEmailAndPassword, 
   createUserWithEmailAndPassword, 
   signInAnonymously, 
-  onAuthStateChanged 
+  onAuthStateChanged,
+  signOut
 } from "firebase/auth";
 
 // Firebase configuration
@@ -42,13 +47,15 @@ function App() {
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 1000);
   const [tabIndex, setTabIndex] = useState(0);
   const [items, setItems] = useState([]); 
-  const [noteToOpenId, setNoteToOpenId] = useState(null);
+  const [noteOpenId, setNoteOpenId] = useState(null);
 
   const [user, setUser] = useState(null); // Current user
-  const [authModalOpen, setAuthModalOpen] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLogin, setIsLogin] = useState(true);
+  const [dropDown, dropDownElement] = useState(null);
+  const menuOpen = Boolean(dropDown);
 
   // Auth state listener
   useEffect(() => {
@@ -92,8 +99,21 @@ function App() {
   const handleTabChange = (event, newIndex) => setTabIndex(newIndex);
 
   const handleCalendarNoteClick = (noteId) => {
-    setNoteToOpenId(noteId);
+    setNoteOpenId(noteId);
     if (isMobile && tabIndex !== 0) setTabIndex(0);
+  };
+
+  const handleMenuOpen = (event) => {
+    dropDownElement(event.currentTarget);
+  };
+
+  const handleMenuClose = () => {
+    dropDownElement(null);
+  };
+
+  const handleLogout = async () => {
+    await signOut(auth);
+    handleMenuClose();
   };
 
   return (
@@ -117,7 +137,7 @@ function App() {
                   padding: "0.3rem 0.6rem",
                   margin: "0.5em",
                 }}
-                onClick={() => { setIsLogin(true); setAuthModalOpen(true); }}
+                onClick={() => { setIsLogin(true); setModalOpen(true); }}
               >
                 Log in
               </Button>
@@ -130,22 +150,51 @@ function App() {
                   "& svg": { transition: "transform 0.15s ease" },
                   "&:hover svg": { transform: "scale(1.2)" }
                 }}
-                onClick={() => { setIsLogin(false); setAuthModalOpen(true); }}
+                onClick={() => { setIsLogin(false); setModalOpen(true); }}
               >
                 Sign up
               </Button>
             </>
           )}
-          {/* {user && (
-            <span style={{ marginLeft: '1em' }}>
-              Welcome, {user.isAnonymous ? "Guest" : user.email}
-            </span>
-          )} */}
+          {user && (
+            <>
+              <Button
+                color="inherit"
+                onClick={handleMenuOpen}
+                endIcon={<ArrowDropDownIcon />}
+                sx={{
+                  textTransform: "none",
+                  marginLeft: "1em",
+                  color: "white",
+                }}
+              >
+                {user.isAnonymous ? "Guest" : user.email}
+              </Button>
+
+              <Menu
+                anchorEl={dropDown}
+                open={menuOpen}
+                onClose={handleMenuClose}
+                anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+                transformOrigin={{ vertical: "top", horizontal: "right" }}
+              >
+                <MenuItem disabled>
+                  {user.isAnonymous ? "Guest user" : user.email}
+                </MenuItem>
+
+                {!user.isAnonymous && (
+                  <MenuItem onClick={handleLogout}>Log out</MenuItem>
+                )}
+              
+              </Menu>
+            </>
+          )}
+
         </div>
       </header>
 
       {/* Auth Modal */}
-      <Modal open={authModalOpen} onClose={() => setAuthModalOpen(false)}>
+      <Modal open={modalOpen} onClose={() => setModalOpen(false)}>
         <Box sx={{
           position: "absolute",
           top: "50%",
@@ -182,7 +231,7 @@ function App() {
                 } else {
                   await createUserWithEmailAndPassword(auth, email, password);
                 }
-                setAuthModalOpen(false);
+                setModalOpen(false);
                 setEmail(""); setPassword("");
               } catch (error) {
                 console.error(error);
@@ -204,7 +253,7 @@ function App() {
             sx={{ mt: 1 }}
             onClick={async () => {
               await signInAnonymously(auth);
-              setAuthModalOpen(false);
+              setModalOpen(false);
             }}
           >
             Continue as Guest
@@ -219,8 +268,8 @@ function App() {
             <NoteWidget
               db={db}
               items={items}
-              noteToOpenId={noteToOpenId}
-              setNoteToOpenId={setNoteToOpenId}
+              noteToOpenId={noteOpenId}
+              setNoteToOpenId={setNoteOpenId}
               user={user} // Pass user to NoteWidget
             />
           </div>
@@ -254,8 +303,8 @@ function App() {
               <NoteWidget
                 db={db}
                 items={items}
-                noteToOpenId={noteToOpenId}
-                setNoteToOpenId={setNoteToOpenId}
+                noteToOpenId={noteOpenId}
+                setNoteToOpenId={setNoteOpenId}
                 user={user}
               />
             </div>

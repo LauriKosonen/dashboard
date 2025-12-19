@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Button from '@mui/material/Button';
 import SearchIcon from '@mui/icons-material/Search';
 import TextField from '@mui/material/TextField';
@@ -9,35 +9,46 @@ function WeatherWidget() {
   const API_KEY = process.env.REACT_APP_WEATHER_APIKEY;
   const ICON_URL = "http://openweathermap.org/img/wn/";
 
-  const [cityname, setCityname] = useState(" ");
+  const [cityname, setCityname] = useState(
+    () => localStorage.getItem("weatherCity") || ""
+  );
   const [weather, setWeather] = useState(null);
   const [forecast, setForecast] = useState([]);
 
   const getWeather = async () => {
-  try {
-    //current weather
-    const currentRes = await axios.get(
-      `https://api.openweathermap.org/data/2.5/weather?q=${cityname}&appid=${API_KEY}&units=metric`
-    );
-    setWeather(currentRes.data);
+    if (!cityname.trim()) return;
+    try {
+      localStorage.setItem("weatherCity", cityname);
+      //current weather
+      const currentRes = await axios.get(
+        `https://api.openweathermap.org/data/2.5/weather?q=${cityname}&appid=${API_KEY}&units=metric`
+      );
+      setWeather(currentRes.data);
 
-    //forecast
-    const forecastRes = await axios.get(
-      `https://api.openweathermap.org/data/2.5/forecast?q=${cityname}&appid=${API_KEY}&units=metric`
-    );
+      //forecast
+      const forecastRes = await axios.get(
+        `https://api.openweathermap.org/data/2.5/forecast?q=${cityname}&appid=${API_KEY}&units=metric`
+      );
 
-    //only future entries
-    const now = new Date();
-    const futureForecast = forecastRes.data.list.filter(
-      (f) => new Date(f.dt_txt) > now
-    );
+      //only future entries
+      const now = new Date();
+      const futureForecast = forecastRes.data.list.filter(
+        (f) => new Date(f.dt_txt) > now
+      );
 
-    //next 4 weather entries
-    setForecast(futureForecast.slice(0, 3));
-  } catch (err) {
-    console.error("Error fetching weather:", err);
-  }
+      //next 4 weather entries
+      setForecast(futureForecast.slice(0, 3));
+    } catch (err) {
+      console.error("Error fetching weather:", err);
+    }
 };
+
+useEffect(() => {
+  if (cityname) {
+    getWeather();
+  }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+}, []);
 
 //background change for the widget based on current weather
   const getBackgroundClass = () => {
