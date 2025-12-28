@@ -1,6 +1,7 @@
 .calendar-widget {
   grid-area: calendar;
-
+  background-color: var(--widget-surface);
+  color: var(--app-text);
 }
 
 .MuiBadge-dot {

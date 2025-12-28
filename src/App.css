@@ -40,8 +40,10 @@ body, html, #root {
 
   gap: 1rem;
   padding: 1rem;
-  background: #f4f4f4;
+  /* background: #f4f4f4; */
   min-height: 0;
+  background-color: var(--app-surface);
+  color: var(--app-text);
 }
 
 .widget {
