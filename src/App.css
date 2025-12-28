@@ -8,7 +8,8 @@ body, html, #root {
 .dashboard {
   display: flex;
   flex-direction: column;
-  height: 100%;
+  height: 100vh;
+  overflow: hidden;
 }
 
 .header {
@@ -31,7 +32,8 @@ body, html, #root {
   flex: 1;
   display: grid;
   grid-template-columns: 2fr 1fr;
-  grid-template-rows: 1fr auto auto;
+  grid-template-rows: auto 1fr;
+  /* height: 100%; */
 
   grid-template-areas:
     "notes calendar"
@@ -40,7 +42,14 @@ body, html, #root {
 
   gap: 1rem;
   padding: 1rem;
-  background: #f4f4f4;
+  /* background: #f4f4f4; */
+  min-height: 0;
+  background-color: var(--app-surface);
+  color: var(--app-text);
+}
+
+main.grid {
+  flex: 1;
   min-height: 0;
 }
 
@@ -52,27 +61,60 @@ body, html, #root {
   display: flex;
   flex-direction: column;
   min-height: 0;
+  overflow: hidden;
+  background-color: var(--widget-surface);
 }
 
 /*Medium size*/
 /*Uudet kuvat*/
-/* @media only screen and (max-width: 1000px) {
-  .grid {
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: 3fr 2fr;
-    grid-template-areas:
-      "notes calendar"
-      "notes weather";
-  }
-} */
-/*Small size*/
-@media only screen and (max-width: 1000px) {
-  .mobile-grid {
-    display: flex;
-    flex-direction: column;
+@media only screen and (max-width: 1300px) {
+
+  html, body, #root {
+    height: auto;
   }
 
-  .calendar-weather-container {
+  .dashboard {
+    height: auto;
+    overflow: visible;
+  }
+
+  .grid {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto auto;
+    grid-template-areas:
+      "weather calendar"
+      "notes notes";
+  }
+
+  .widget {
+    overflow: visible;
+  }
+}
+/*Small size*/
+@media only screen and (max-width: 900px) {
+
+  html, body, #root {
+    height: auto;
+  }
+
+  .dashboard {
+    height: auto;
+    overflow: visible;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "weather"
+      "calendar"
+      "notes";
+  }
+
+  .widget {
+    overflow: visible;
+  }
+
+  /* .calendar-weather-container {
     display: grid;
     grid-template-rows: 1fr 1fr;
     gap: 0.5rem;
@@ -86,5 +128,5 @@ body, html, #root {
     border-radius: 8px;
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     overflow: visible;
-  }
+  } */
 }

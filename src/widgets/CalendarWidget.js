@@ -70,7 +70,7 @@ export default function CalendarWidget({ notes, onNoteDateClick }) {
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
-      <DateCalendar
+      <DateCalendar showDaysOutsideCurrentMonth fixedWeekNumber={5}
         value={value}
         onChange={(newValue) => setValue(newValue)}
         slots={{

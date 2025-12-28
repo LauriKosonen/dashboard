@@ -5,12 +5,14 @@ import NoteWidget from "./widgets/NoteWidget";
 import CalendarWidget from "./widgets/CalendarWidget";
 import WeatherWidget from "./widgets/WeatherWidget";
 
-import Tabs from '@mui/material/Tabs';
-import Tab from '@mui/material/Tab';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Modal from "@mui/material/Modal";
 import TextField from "@mui/material/TextField";
+
+import { ThemeProvider, createTheme } from "@mui/material/styles";
+import CssBaseline from "@mui/material/CssBaseline";
+import Switch from "@mui/material/Switch";
 
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
@@ -43,9 +45,20 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 
+//light and dark theme
+const lightTheme = createTheme({
+  palette: {
+    mode: "light",
+  },
+});
+
+const darkTheme = createTheme({
+  palette: {
+    mode: "dark",
+  },
+});
+
 function App() {
-  const [isMobile, setIsMobile] = useState(window.innerWidth <= 1000);
-  const [tabIndex, setTabIndex] = useState(0);
   const [items, setItems] = useState([]); 
   const [noteOpenId, setNoteOpenId] = useState(null);
 
@@ -57,19 +70,35 @@ function App() {
   const [dropDown, dropDownElement] = useState(null);
   const menuOpen = Boolean(dropDown);
 
-  // Auth state listener
+  const [darkMode, setDarkMode] = useState(
+  () => localStorage.getItem("darkMode") === "true"
+);
+
+  //dark mode
+  useEffect(() => {
+    localStorage.setItem("darkMode", darkMode);
+  }, [darkMode]);
+
+  useEffect(() => {
+    const root = document.documentElement;
+
+    if (darkMode) {
+      root.style.setProperty("--app-surface", "#1e1e1e");
+      root.style.setProperty("--app-text", "#ffffff");
+      root.style.setProperty("--widget-surface", "#4d4d4dff");
+    } else {
+      root.style.setProperty("--app-surface", "#eae9e9ff");
+      root.style.setProperty("--app-text", "#000000");
+      root.style.setProperty("--widget-surface", "#f4f4f4");
+    }
+  }, [darkMode]);
+
+  //auth state listener
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
     });
     return () => unsubscribe();
-  }, []);
-
-  // Window resize
-  useEffect(() => {
-    const onResize = () => setIsMobile(window.innerWidth <= 1000);
-    window.addEventListener("resize", onResize);
-    return () => window.removeEventListener("resize", onResize);
   }, []);
 
 
@@ -96,11 +125,8 @@ function App() {
     return () => unsubscribe();
   }, [user]);
 
-  const handleTabChange = (event, newIndex) => setTabIndex(newIndex);
-
   const handleCalendarNoteClick = (noteId) => {
     setNoteOpenId(noteId);
-    if (isMobile && tabIndex !== 0) setTabIndex(0);
   };
 
   const handleMenuOpen = (event) => {
@@ -117,189 +143,187 @@ function App() {
   };
 
   return (
-    <div className="dashboard">
-      {/* Header */}
-      <header className="header">
-        Dashboard
-        <div className="authentication-buttons">
-          {!user && (
-            <>
-              <Button
-                variant="outlined"
-                size="small"
-                sx={{
-                  color: "white",
-                  borderColor: "white",
-                  "&:hover": {
-                    backgroundColor: "rgba(255,255,255,0.1)",
-                    borderColor: "white"
-                  },
-                  padding: "0.3rem 0.6rem",
-                  margin: "0.5em",
-                }}
-                onClick={() => { setIsLogin(true); setModalOpen(true); }}
-              >
-                Log in
-              </Button>
+    <ThemeProvider theme={darkMode ? darkTheme : lightTheme}>
+      <CssBaseline />
+        <div className="dashboard" 
+        style={{
+        backgroundColor: "var(--app-bg)",
+        color: "var(--app-text)",
+        }}>
+          {/* Header */}
+          <header className="header">
+            Dashboard
+            <div className="authentication-buttons">
+              {!user && (
+                <>
+                  <Button
+                    variant="outlined"
+                    size="small"
+                    sx={{
+                      color: "white",
+                      borderColor: "white",
+                      "&:hover": {
+                        backgroundColor: "rgba(255,255,255,0.1)",
+                        borderColor: "white"
+                      },
+                      padding: "0.3rem 0.6rem",
+                      margin: "0.5em",
+                    }}
+                    onClick={() => { setIsLogin(true); setModalOpen(true); }}
+                  >
+                    Log in
+                  </Button>
+                  <Button
+                    variant="contained"
+                    size="large"
+                    sx={{
+                      padding: "4px 8px",
+                      margin: "0.5em",
+                      "& svg": { transition: "transform 0.15s ease" },
+                      "&:hover svg": { transform: "scale(1.2)" }
+                    }}
+                    onClick={() => { setIsLogin(false); setModalOpen(true); }}
+                  >
+                    Sign up
+                  </Button>
+                </>
+              )}
+              {user && (
+                <>
+                  <Button
+                  variant="outlined"
+                    color="inherit"
+                    onClick={handleMenuOpen}
+                    endIcon={<ArrowDropDownIcon />}
+                    sx={{
+                      textTransform: "none",
+                      marginLeft: "1em",
+                      color: "white",
+                    }}
+                  >
+                    Settings
+                  </Button>
+
+                  <Menu
+                    anchorEl={dropDown}
+                    open={menuOpen}
+                    onClose={handleMenuClose}
+                    anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+                    transformOrigin={{ vertical: "top", horizontal: "right" }}
+                  >
+                    <MenuItem disabled>
+                      {user.isAnonymous ? "Guest user" : user.email}
+                    </MenuItem>
+
+                    <MenuItem>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "space-between",
+                          width: "100%",
+                        }}
+                      >
+                        Dark mode
+                        <Switch
+                          checked={darkMode}
+                          onChange={() => setDarkMode(!darkMode)}
+                        />
+                      </Box>
+                    </MenuItem>
+
+                    {!user.isAnonymous && (
+                      <MenuItem onClick={handleLogout}>Log out</MenuItem>
+                    )}
+                  
+                  </Menu>
+                </>
+              )}
+
+            </div>
+          </header>
+
+          {/* Auth Modal */}
+          <Modal open={modalOpen} onClose={() => setModalOpen(false)}>
+            <Box sx={{
+              position: "absolute",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              width: 300,
+              bgcolor: "background.paper",
+              p: 4,
+              borderRadius: 2
+            }}>
+              <h2>{isLogin ? "Log In" : "Sign Up"}</h2>
+              <TextField
+                fullWidth
+                label="Email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                sx={{ mb: 2 }}
+              />
+              <TextField
+                fullWidth
+                label="Password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                sx={{ mb: 2 }}
+              />
               <Button
                 variant="contained"
-                size="large"
-                sx={{
-                  padding: "4px 8px",
-                  margin: "0.5em",
-                  "& svg": { transition: "transform 0.15s ease" },
-                  "&:hover svg": { transform: "scale(1.2)" }
+                fullWidth
+                onClick={async () => {
+                  try {
+                    if (isLogin) {
+                      await signInWithEmailAndPassword(auth, email, password);
+                    } else {
+                      await createUserWithEmailAndPassword(auth, email, password);
+                    }
+                    setModalOpen(false);
+                    setEmail(""); setPassword("");
+                  } catch (error) {
+                    console.error(error);
+                    alert(error.message);
+                  }
                 }}
-                onClick={() => { setIsLogin(false); setModalOpen(true); }}
               >
-                Sign up
+                {isLogin ? "Log In" : "Sign Up"}
               </Button>
-            </>
-          )}
-          {user && (
-            <>
               <Button
-                color="inherit"
-                onClick={handleMenuOpen}
-                endIcon={<ArrowDropDownIcon />}
-                sx={{
-                  textTransform: "none",
-                  marginLeft: "1em",
-                  color: "white",
+                fullWidth
+                sx={{ mt: 1 }}
+                onClick={() => setIsLogin(!isLogin)}
+              >
+                {isLogin ? "Switch to Sign Up" : "Switch to Log In"}
+              </Button>
+              <Button
+                fullWidth
+                sx={{ mt: 1 }}
+                onClick={async () => {
+                  await signInAnonymously(auth);
+                  setModalOpen(false);
                 }}
               >
-                {user.isAnonymous ? "Guest" : user.email}
+                Continue as Guest
               </Button>
+            </Box>
+          </Modal>
 
-              <Menu
-                anchorEl={dropDown}
-                open={menuOpen}
-                onClose={handleMenuClose}
-                anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-                transformOrigin={{ vertical: "top", horizontal: "right" }}
-              >
-                <MenuItem disabled>
-                  {user.isAnonymous ? "Guest user" : user.email}
-                </MenuItem>
+          <main className="grid">
+            <div className="widget weather-widget">
+              <WeatherWidget />
+            </div>
 
-                {!user.isAnonymous && (
-                  <MenuItem onClick={handleLogout}>Log out</MenuItem>
-                )}
-              
-              </Menu>
-            </>
-          )}
+            <div className="widget calendar-widget">
+              <CalendarWidget
+                notes={items}
+                onNoteDateClick={handleCalendarNoteClick}
+              />
+            </div>
 
-        </div>
-      </header>
-
-      {/* Auth Modal */}
-      <Modal open={modalOpen} onClose={() => setModalOpen(false)}>
-        <Box sx={{
-          position: "absolute",
-          top: "50%",
-          left: "50%",
-          transform: "translate(-50%, -50%)",
-          width: 300,
-          bgcolor: "background.paper",
-          p: 4,
-          borderRadius: 2
-        }}>
-          <h2>{isLogin ? "Log In" : "Sign Up"}</h2>
-          <TextField
-            fullWidth
-            label="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            sx={{ mb: 2 }}
-          />
-          <TextField
-            fullWidth
-            label="Password"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            sx={{ mb: 2 }}
-          />
-          <Button
-            variant="contained"
-            fullWidth
-            onClick={async () => {
-              try {
-                if (isLogin) {
-                  await signInWithEmailAndPassword(auth, email, password);
-                } else {
-                  await createUserWithEmailAndPassword(auth, email, password);
-                }
-                setModalOpen(false);
-                setEmail(""); setPassword("");
-              } catch (error) {
-                console.error(error);
-                alert(error.message);
-              }
-            }}
-          >
-            {isLogin ? "Log In" : "Sign Up"}
-          </Button>
-          <Button
-            fullWidth
-            sx={{ mt: 1 }}
-            onClick={() => setIsLogin(!isLogin)}
-          >
-            {isLogin ? "Switch to Sign Up" : "Switch to Log In"}
-          </Button>
-          <Button
-            fullWidth
-            sx={{ mt: 1 }}
-            onClick={async () => {
-              await signInAnonymously(auth);
-              setModalOpen(false);
-            }}
-          >
-            Continue as Guest
-          </Button>
-        </Box>
-      </Modal>
-
-      {/* Desktop grid */}
-      {!isMobile && (
-        <main className="grid">
-          <div className="widget notes-widget">
-            <NoteWidget
-              db={db}
-              items={items}
-              noteToOpenId={noteOpenId}
-              setNoteToOpenId={setNoteOpenId}
-              user={user} // Pass user to NoteWidget
-            />
-          </div>
-          <div className="widget calendar-widget">
-            <CalendarWidget
-              notes={items}
-              onNoteDateClick={handleCalendarNoteClick}
-            />
-          </div>
-          <div className="weather-widget"><WeatherWidget /></div>
-        </main>
-      )}
-
-      {/* Mobile tabs */}
-      {isMobile && (
-        <Box className="mobile-grid">
-          <Tabs
-            value={tabIndex}
-            onChange={handleTabChange}
-            variant="fullWidth"
-            textColor="primary"
-            indicatorColor="primary"
-            className="mobile-tabs"
-          >
-            <Tab label="Notes" />
-            <Tab label="Calendar & Weather" />
-          </Tabs>
-
-          {tabIndex === 0 && (
-            <div className="notes-widget" style={{ overflowY: "auto", flex: 1 }}>
+            <div className="widget notes-widget">
               <NoteWidget
                 db={db}
                 items={items}
@@ -308,24 +332,9 @@ function App() {
                 user={user}
               />
             </div>
-          )}
-
-          {tabIndex === 1 && (
-            <div className="calendar-weather-container">
-              <div className="mobile-calendar">
-                <CalendarWidget
-                  notes={items}
-                  onNoteDateClick={handleCalendarNoteClick}
-                />
-              </div>
-              <div className="mobile-weather">
-                <WeatherWidget />
-              </div>
-            </div>
-          )}
-        </Box>
-      )}
-    </div>
+          </main>
+      </div>
+    </ThemeProvider>
   );
 }
 

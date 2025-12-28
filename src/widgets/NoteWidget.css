@@ -3,7 +3,10 @@
   display: flex;
   flex-direction: column;
   min-height: 0;
+  height: 100%;
   /* color: white; */
+  background-color: var(--widget-surface);
+  color: var(--app-text);
 }
 
 .note-widget {
@@ -11,6 +14,8 @@
   flex-direction: column;
   gap: 0.5rem;
   min-height: 0;
+  background-color: var(--widget-surface);
+  color: var(--app-text);
 }
 
 .note-widget-header {
@@ -34,6 +39,7 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
+  overflow-y: auto;
 }
 
 .note {
