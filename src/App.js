@@ -19,7 +19,7 @@ import MenuItem from "@mui/material/MenuItem";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 
 import { initializeApp } from "firebase/app";
-import { getFirestore, collection, onSnapshot, query, orderBy } from "firebase/firestore";
+import { getFirestore, collection, onSnapshot, query, orderBy, where } from "firebase/firestore";
 import { 
   getAuth, 
   signInWithEmailAndPassword, 
@@ -93,37 +93,52 @@ function App() {
     }
   }, [darkMode]);
 
-  //auth state listener
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-    });
-    return () => unsubscribe();
-  }, []);
+  // Auth state listener
+    useEffect(() => {
+      const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+        console.log("Auth state changed. currentUser:", currentUser ? currentUser.uid : "null");
+        setUser(currentUser);
+      });
+      return () => unsubscribe();
+    }, []);
 
 
-  // Firestore notes listener
-  useEffect(() => {
-    if (!user || user.isAnonymous) {
-      setItems([]); // No notes are visible by default
-      return;
-    }
+    // Firestore notes listener
+    useEffect(() => {
+      console.log("Firestore listener useEffect running. Current user:", user ? user.uid : "null");
 
-    const q = query(
-      collection(db, "notes"),
-      orderBy("favorite", "desc"),
-      orderBy("created", "desc")
-    );
+      if (!user) {
+        setItems([]); // No user, no notes
+        console.log("Firestore listener skipped: No user.");
+        return;
+      }
 
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const notesData = snapshot.docs
-        .map(doc => ({ id: doc.id, ...doc.data() }))
-        .filter(note => note.uid === user.uid); // Only current user's notes
-      setItems(notesData);
-    });
+      const q = query(
+        collection(db, "notes"),
+        where("uid", "==", user.uid),
+        orderBy("favorite", "desc"),
+        orderBy("created", "desc")
+      );
 
-    return () => unsubscribe();
-  }, [user]);
+      console.log("Setting up Firestore onSnapshot listener for UID:", user.uid);
+
+      const unsubscribe = onSnapshot(q, (snapshot) => {
+        // These logs are NOT firing when the issue occurs.
+        console.log("!!! onSnapshot CALLBACK FIRED !!! Current user UID in onSnapshot:", user?.uid);
+        console.log("Snapshot docs received:", snapshot.docs.length);
+        const notesData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        console.log("Processed notes data:", notesData);
+        setItems(notesData);
+      });
+
+      return () => {
+        console.log("Unsubscribing Firestore listener for UID:", user.uid);
+        unsubscribe();
+      };
+    }, [user]);
+
+
+
 
   const handleCalendarNoteClick = (noteId) => {
     setNoteOpenId(noteId);
@@ -232,9 +247,7 @@ function App() {
                       </Box>
                     </MenuItem>
 
-                    {!user.isAnonymous && (
                       <MenuItem onClick={handleLogout}>Log out</MenuItem>
-                    )}
                   
                   </Menu>
                 </>

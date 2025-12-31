@@ -68,7 +68,7 @@ function NoteWidget({db, items, noteToOpenId, setNoteToOpenId, user}) {
     event.preventDefault();
     const dateToSave = noteDate && noteDate.isValid() ? noteDate.toISOString() : null;
 
-    if (!user || user.isAnonymous) {
+    if (!user) {
       console.log("Guest notes are not saved to Firestore");
       handleClose();
       return;
@@ -77,8 +77,10 @@ function NoteWidget({db, items, noteToOpenId, setNoteToOpenId, user}) {
     try {
       if (editingId) {
         const noteRef = doc(db, "notes", editingId);
+        console.log("Updating note with uid:", user.uid);
         await updateDoc(noteRef, { title: itemTitle, text: itemText, date: dateToSave });
       } else {
+        console.log("Adding new note with uid:", user.uid);
         await addDoc(collection(db, "notes"), {
           title: itemTitle,
           text: itemText,
@@ -106,7 +108,7 @@ function NoteWidget({db, items, noteToOpenId, setNoteToOpenId, user}) {
   };
 
   const removeItem = async (id) => {
-    if (!user || user.isAnonymous) {
+    if (!user) {
       handleClose();
       return;
     }
@@ -119,7 +121,7 @@ function NoteWidget({db, items, noteToOpenId, setNoteToOpenId, user}) {
   };
 
   const toggleFavorite = async (id) => {
-    if (!user || user.isAnonymous) return;
+    if (!user) return;
     const noteToToggle = items.find(item => item.id === id);
     if (noteToToggle) {
       try {
