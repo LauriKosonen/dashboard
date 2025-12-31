@@ -51,6 +51,8 @@ body, html, #root {
 main.grid {
   flex: 1;
   min-height: 0;
+  background-color: var(--app-surface);
+  color: var(--app-text);
 }
 
 .widget {
