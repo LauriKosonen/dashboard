@@ -71,7 +71,7 @@ main.grid {
 
 /*Medium size*/
 /*Uudet kuvat*/
-/* @media only screen and (max-width: 1300px) {
+@media only screen and (max-width: 1000px) {
 
   html, body, #root {
     height: auto;
@@ -94,9 +94,9 @@ main.grid {
     overflow: visible;
     height: 100%;
   }
-} */
+}
 /*Small size*/
-@media only screen and (max-width: 980px) {
+@media only screen and (max-width: 780px) {
 
   html, body, #root {
     height: auto;
