@@ -6,11 +6,14 @@
   /* height: 100%; */
   background-color: var(--widget-surface);
   color: var(--app-text);
+  font-size: 0.85rem;
+  overflow: hidden;
 }
 
 .calendar-content {
   flex: 1;
   min-height: 0;
+  overflow: hidden;
 }
 
 .MuiBadge-dot {
@@ -19,4 +22,9 @@
   min-width: 0 !important;
   border-radius: 50% !important;
   padding: 0 !important;
+}
+
+.calendar-widget .MuiDayCalendar-weekDayLabel,
+.calendar-widget .MuiPickersDay-root {
+  font-size: 0.75rem;
 }

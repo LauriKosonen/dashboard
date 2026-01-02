@@ -32,11 +32,14 @@ body, html, #root {
   flex: 1;
   display: grid;
   grid-template-columns: 2fr 1fr;
-  grid-template-rows: 1fr 1fr;
+  grid-template-rows: 1fr 1fr 1fr 1fr 1fr;
   /* height: 100%; */
 
   grid-template-areas:
     "notes calendar"
+    "notes calendar"
+    "notes calendar"
+    "notes weather"
     "notes weather";
 
   gap: 1rem;
@@ -56,7 +59,6 @@ main.grid {
 
 .widget {
   background: white;
-  padding: 1rem;
   border-radius: 8px;
   box-shadow: 0 2px 5px rgba(0,0,0,0.1);
   display: flex;
@@ -64,6 +66,7 @@ main.grid {
   min-height: 0;
   overflow: auto;
   background-color: var(--widget-surface);
+  font-size: 0.9rem;
 }
 
 /*Medium size*/

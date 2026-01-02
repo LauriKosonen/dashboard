@@ -77,7 +77,7 @@ useEffect(() => {
           e.preventDefault(); 
           getWeather();
         }}
-        style={{ display: "flex", alignItems: "center", gap: "20px", color: "white" }}
+        style={{ display: "flex", alignItems: "center", gap: "0.5rem", color: "white" }}
       >
         <TextField
           label="Cityname"
@@ -85,6 +85,18 @@ useEffect(() => {
           onChange={(e) => setCityname(e.target.value)}
           className="textfield"
           autoComplete="off"
+          size="small" // <-- smaller input
+          sx={{
+            '& .MuiOutlinedInput-root': {
+              padding: '2px 8px',   // shrink input padding
+              fontSize: '0.9rem',   // smaller font
+              height: '32px'        // force a compact height
+            },
+            '& .MuiInputLabel-root': {
+              fontSize: '0.75rem',
+              top: '-2px'           // optional: adjust label position
+            }
+          }}
         />
 
         <Button 
@@ -92,7 +104,11 @@ useEffect(() => {
           color="white" 
           size="small" 
           onClick={getWeather}
-          sx={{padding: 1.9,
+          sx={{
+            minWidth: 'auto',     // remove default min-width
+            fontSize: '0.9rem',  // smaller text/icon
+            padding: '4px 8px',   // smaller padding
+            height: '32px',       // match TextField height
             "& svg": { transition: "transform 0.15s ease" },
             "&:hover svg": { transform: "scale(1.2)" }
           }}
@@ -104,12 +120,12 @@ useEffect(() => {
       {/*weather container*/}
       <div
         className="weather-container"
-        style={{ display: "flex", gap: "10px", marginTop: "10px", marginLeft: "5px" }}
+        style={{ display: "flex", gap: "0px", marginTop: "0px", marginLeft: "10px", marginBottom: "5px", }}
       >
 
         {/*forecast*/}
         {forecast.length > 0 && (
-          <div className="weather-forecast" style={{ margin: "7px" }}>
+          <div className="weather-forecast">
             <ul style={{ listStyle: "none", padding: "5px" }}>
               {forecast.map((f, index) => (
                 <li key={index} style={{
