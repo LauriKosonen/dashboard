@@ -62,7 +62,7 @@ main.grid {
   display: flex;
   flex-direction: column;
   min-height: 0;
-  overflow: hidden;
+  overflow: auto;
   background-color: var(--widget-surface);
 }
 
@@ -114,20 +114,4 @@ main.grid {
   .widget {
     overflow: visible;
   }
-
-  /* .calendar-weather-container {
-    display: grid;
-    grid-template-rows: 1fr 1fr;
-    gap: 0.5rem;
-    height: calc(100vh - 64px - 48px);
-  }
-
-  .mobile-calendar,
-  .mobile-weather {
-    padding: 0.5rem;
-    background: white;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    overflow: visible;
-  } */
 }
