@@ -97,10 +97,9 @@ function App() {
     useEffect(() => {
       const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
         if (!currentUser) {
-          // Sign in anonymously if no user exists
           try {
             const anonUser = await signInAnonymously(auth);
-            setUser(anonUser.user); // set the user in state
+            setUser(anonUser.user);
           } catch (error) {
             console.error("Anonymous sign-in failed:", error);
           }
@@ -108,6 +107,7 @@ function App() {
           setUser(currentUser);
         }
       });
+
       return () => unsubscribe();
     }, []);
 
