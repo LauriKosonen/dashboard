@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react"; // Import useRef
 import "./App.css";
 
 import NoteWidget from "./widgets/NoteWidget";
@@ -62,7 +62,7 @@ function App() {
   const [items, setItems] = useState([]); 
   const [noteOpenId, setNoteOpenId] = useState(null);
 
-  const [user, setUser] = useState(null); // Current user
+  const [user, setUser] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -93,31 +93,34 @@ function App() {
     }
   }, [darkMode]);
 
-  // Auth state listener
+  // auth state listener with gemini
     useEffect(() => {
-      const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-        if (!currentUser) {
-          try {
-            const anonUser = await signInAnonymously(auth);
-            setUser(anonUser.user);
-          } catch (error) {
-            console.error("Anonymous sign-in failed:", error);
-          }
-        } else {
+      const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+        console.log("Auth state changed. currentUser:", currentUser ? currentUser.uid : "null", "isAnonymous:", currentUser?.isAnonymous);       
+        if (currentUser) {
           setUser(currentUser);
+        } else {
+          console.log("No user, attempting anonymous sign-in.");
+          signInAnonymously(auth)
+            .then((anonUserCredential) => {
+              console.log("Signed in anonymously automatically:", anonUserCredential.user.uid);
+            })
+            .catch((error) => {
+              console.error("Error signing in anonymously:", error);
+              setUser(null);
+            });
         }
       });
-
       return () => unsubscribe();
     }, []);
 
 
-    // Firestore notes listener
+    // firestore listener
     useEffect(() => {
       console.log("Firestore listener useEffect running. Current user:", user ? user.uid : "null");
 
       if (!user) {
-        setItems([]); // No user, no notes
+        setItems([]); // no user, no notes
         console.log("Firestore listener skipped: No user.");
         return;
       }
@@ -132,7 +135,6 @@ function App() {
       console.log("Setting up Firestore onSnapshot listener for UID:", user.uid);
 
       const unsubscribe = onSnapshot(q, (snapshot) => {
-        // These logs are NOT firing when the issue occurs.
         console.log("!!! onSnapshot CALLBACK FIRED !!! Current user UID in onSnapshot:", user?.uid);
         console.log("Snapshot docs received:", snapshot.docs.length);
         const notesData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -174,11 +176,11 @@ function App() {
         backgroundColor: "var(--app-bg)",
         color: "var(--app-text)",
         }}>
-          {/* Header */}
           <header className="header">
             Dashboard
             <div className="authentication-buttons">
-              {!user && (
+              {/* login visibility */}
+              {(!user || user.isAnonymous) && (
                 <>
                   <Button
                     variant="outlined"
@@ -212,7 +214,8 @@ function App() {
                   </Button>
                 </>
               )}
-              {user && (
+              {/* Settings*/}
+              {user && !user.isAnonymous &&(
                 <>
                   <Button
                   variant="outlined"

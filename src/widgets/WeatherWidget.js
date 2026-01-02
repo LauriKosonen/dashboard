@@ -85,16 +85,15 @@ useEffect(() => {
           onChange={(e) => setCityname(e.target.value)}
           className="textfield"
           autoComplete="off"
-          size="small" // <-- smaller input
+          size="small"
           sx={{
             '& .MuiOutlinedInput-root': {
-              padding: '2px 8px',   // shrink input padding
-              fontSize: '0.9rem',   // smaller font
-              height: '32px'        // force a compact height
+              padding: '2px 8px',
+              fontSize: '0.9rem',
+              height: '32px'
             },
             '& .MuiInputLabel-root': {
               fontSize: '0.75rem',
-              top: '-2px'           // optional: adjust label position
             }
           }}
         />
@@ -105,10 +104,11 @@ useEffect(() => {
           size="small" 
           onClick={getWeather}
           sx={{
-            minWidth: 'auto',     // remove default min-width
-            fontSize: '0.9rem',  // smaller text/icon
-            padding: '4px 8px',   // smaller padding
-            height: '32px',       // match TextField height
+            minWidth: 'auto',
+            fontSize: '0.9rem',
+            padding: '4px 8px',
+            height: '32px',
+
             "& svg": { transition: "transform 0.15s ease" },
             "&:hover svg": { transform: "scale(1.2)" }
           }}

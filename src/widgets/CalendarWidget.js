@@ -8,13 +8,8 @@ import Badge from "@mui/material/Badge";
 import { PickersDay } from '@mui/x-date-pickers/PickersDay'; 
 import { styled } from '@mui/material/styles';
 
-// Styled PickersDay to allow custom styling or props, though not strictly necessary for this logic
 const CustomPickersDay = styled(PickersDay)(({ theme }) => ({
-  // You can add custom styles here if you want to visually differentiate days with notes
-  // For example:
-  // '&.Mui-selected': {
-  //   backgroundColor: theme.palette.success.light,
-  // },
+
 }));
 
 function DayWithBadge(props) {
