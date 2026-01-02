@@ -31,7 +31,7 @@ import {
 
 // Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyBw_KZ1DHKOCzvvrAuKRMJK2KT6mCusuxE",
+  apiKey: process.env.REACT_APP_FIREBASE_APIKEY,
   authDomain: "dashboard-d948f.firebaseapp.com",
   projectId: "dashboard-d948f",
   storageBucket: "dashboard-d948f.firebasestorage.app",
