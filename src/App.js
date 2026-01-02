@@ -95,9 +95,18 @@ function App() {
 
   // Auth state listener
     useEffect(() => {
-      const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-        console.log("Auth state changed. currentUser:", currentUser ? currentUser.uid : "null");
-        setUser(currentUser);
+      const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+        if (!currentUser) {
+          // Sign in anonymously if no user exists
+          try {
+            const anonUser = await signInAnonymously(auth);
+            setUser(anonUser.user); // set the user in state
+          } catch (error) {
+            console.error("Anonymous sign-in failed:", error);
+          }
+        } else {
+          setUser(currentUser);
+        }
       });
       return () => unsubscribe();
     }, []);
