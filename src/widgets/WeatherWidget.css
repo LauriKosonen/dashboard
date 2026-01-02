@@ -90,14 +90,14 @@
   }
 
   .weather-forecast > * {
-  margin: 1rem;
-  font-size: 0.9rem;
+    margin: 0.3rem;
+    font-size: 0.9rem;
   }
 
   .weather-now {
-  font-size: 400%;
-  margin: 0;
-  padding: 0;
+    font-size: 400%;
+    margin: 0;
+    padding: 0;
   }
 
 
