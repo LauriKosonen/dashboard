@@ -32,11 +32,10 @@ body, html, #root {
   flex: 1;
   display: grid;
   grid-template-columns: 2fr 1fr;
-  grid-template-rows: 1fr 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
   /* height: 100%; */
 
   grid-template-areas:
-    "notes calendar"
     "notes calendar"
     "notes weather";
 
