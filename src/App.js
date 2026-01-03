@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react"; // Import useRef
+import React, { useState, useEffect } from "react";
 import "./App.css";
 
 import NoteWidget from "./widgets/NoteWidget";
