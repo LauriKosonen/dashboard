@@ -19,7 +19,7 @@ import MenuItem from "@mui/material/MenuItem";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 
 import { initializeApp } from "firebase/app";
-import { getFirestore, collection, onSnapshot, query, orderBy, where } from "firebase/firestore";
+import { collection, onSnapshot, query, orderBy, where, persistentLocalCache, persistentSingleTabManager, initializeFirestore } from "firebase/firestore";
 import { 
   getAuth, 
   signInWithEmailAndPassword, 
@@ -42,8 +42,13 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+const db = initializeFirestore(app, {
+  localCache: persistentLocalCache({
+    tabManager: persistentSingleTabManager()
+  })
+});
 const auth = getAuth(app);
+
 
 //light and dark theme
 const lightTheme = createTheme({
