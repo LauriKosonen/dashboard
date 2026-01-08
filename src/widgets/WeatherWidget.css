@@ -4,11 +4,9 @@
   grid-area: weather;
   border-radius: 8px;
   box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-  display: flex;
-  flex-direction: column;
   color: white;
+  height: 100%;
   min-height: 0;
-  /* height: 100%; */
   overflow: hidden;
 }
 
@@ -16,9 +14,10 @@
   display: grid;
   place-items: center;
   flex: 1;
-  font-size: 300%;
-  margin: 0;
+  font-size: 500%;
+  margin: 1rem;
   padding: 0;
+  flex-shrink: 0;
 }
 
 .weather-clear {
@@ -30,18 +29,26 @@
 }
 
 .weather-forecast {
-  padding: 0.1rem;
-  margin-top: 0;
+  padding: 0;
+  margin-top: 2rem;
 }
 
 .weather-forecast > * {
-  margin: 0;
-  font-size: 0.7rem;
+  margin: 1rem;
+  font-size: 200%;
+  padding: 0;
+}
+
+.weather-forecast li {
+  margin: 0.6rem;
 }
 
 .weather-search {
-  padding: 0.8rem;
+  padding: 1rem;
   margin-bottom: 0;
+}
+.form .weather-search {
+  margin: 0;
 }
 
 .textfield .MuiOutlinedInput-root {
@@ -77,10 +84,38 @@
 }
 
 .weather-container {
-  margin: 0.5rem;
+  display: flex;
+  flex: 1;
   min-height: 0;
-  /* height: 100%; */
+  margin: 0;
   padding: 0;
+  gap: 0;
+}
+
+@media only screen and (max-width: 1600px) {
+
+  .weather-forecast {
+    margin: 0;
+    margin-top: 0;
+    font-size: 40%;
+  }
+
+  .weather-forecast li {
+    margin: 0;
+  }
+
+  .weather-now {
+  font-size: 250%;
+  margin: 1.1rem;
+  padding: 0;
+  }
+
+  .weather-search {
+    padding: 0.7rem;
+    margin-bottom: -1rem;
+  }
+
+
 }
 
 @media only screen and (max-width: 1200px) {

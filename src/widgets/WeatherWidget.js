@@ -77,7 +77,7 @@ useEffect(() => {
           e.preventDefault(); 
           getWeather();
         }}
-        style={{ display: "flex", alignItems: "center", gap: "0.5rem", color: "white" }}
+        style={{ display: "flex", alignItems: "center", gap: "0.5rem", color: "white",}}
       >
         <TextField
           label="Cityname"
@@ -90,7 +90,8 @@ useEffect(() => {
             '& .MuiOutlinedInput-root': {
               padding: '2px 8px',
               fontSize: '0.9rem',
-              height: '32px'
+              height: '32px',
+              margin: '0'
             },
             '& .MuiInputLabel-root': {
               fontSize: '0.75rem',
@@ -120,20 +121,17 @@ useEffect(() => {
       {/*weather container*/}
       <div
         className="weather-container"
-        style={{ display: "flex", gap: "0px", marginTop: "0px", marginLeft: "10px", marginBottom: "5px", }}
       >
 
         {/*forecast*/}
         {forecast.length > 0 && (
           <div className="weather-forecast">
-            <ul style={{ listStyle: "none", padding: "5px" }}>
+            <ul style={{ listStyle: "none" }}>
               {forecast.map((f, index) => (
                 <li key={index} style={{
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "space-between",
-                    margin: "4px",
-                    paddingBottom: "1px",
                     borderBottom: index !== forecast.length - 1 ? "1px solid #ccc" : "none"
                  }}>
                   {new Date(f.dt_txt).getHours()}:00 {" "}
