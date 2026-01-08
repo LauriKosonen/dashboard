@@ -125,13 +125,13 @@
   }
 
   .weather-forecast > * {
-    margin: 0.3rem;
+    margin: 1rem;
     font-size: 0.9rem;
   }
 
   .weather-now {
-    font-size: 400%;
-    margin: 0;
+    font-size: 300%;
+    margin: 1rem;
     padding: 0;
   }
 

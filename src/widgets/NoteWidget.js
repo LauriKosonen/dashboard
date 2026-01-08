@@ -33,6 +33,7 @@ function NoteWidget({db, items, noteToOpenId, setNoteToOpenId, user}) {
   const [editingId, setEditingId] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const [noteDate, setNoteDate] = useState(null);
+  const [noteColor, setNoteColor] = useState("default");
 
   useEffect(() => {
     if (noteToOpenId && items.length > 0) {
@@ -43,6 +44,7 @@ function NoteWidget({db, items, noteToOpenId, setNoteToOpenId, user}) {
         setEditingId(noteToOpenId);
         setNoteDate(noteToEdit.date ? dayjs(noteToEdit.date) : null);
         setShowForm(true); 
+        setNoteColor(noteToEdit.color || "default");
       }
       setNoteToOpenId(null);
     }
@@ -78,7 +80,7 @@ function NoteWidget({db, items, noteToOpenId, setNoteToOpenId, user}) {
       if (editingId) {
         const noteRef = doc(db, "notes", editingId);
         console.log("Updating note with uid:", user.uid);
-        await updateDoc(noteRef, { title: itemTitle, text: itemText, date: dateToSave });
+        await updateDoc(noteRef, { title: itemTitle, text: itemText, date: dateToSave, color: noteColor });
       } else {
         console.log("Adding new note with uid:", user.uid);
         await addDoc(collection(db, "notes"), {
@@ -87,7 +89,8 @@ function NoteWidget({db, items, noteToOpenId, setNoteToOpenId, user}) {
           favorite: false,
           created: Date.now(),
           date: dateToSave,
-          uid: user.uid
+          uid: user.uid,
+          color: noteColor
         });
       }
       handleClose();
@@ -104,6 +107,7 @@ function NoteWidget({db, items, noteToOpenId, setNoteToOpenId, user}) {
       setEditingId(id);
       setShowForm(true);
       setNoteDate(note.date ? dayjs(note.date) : null);
+      setNoteColor(note.color || "default");
     }
   };
 
@@ -180,6 +184,17 @@ function NoteWidget({db, items, noteToOpenId, setNoteToOpenId, user}) {
               />
             </LocalizationProvider>
 
+            <div className="note-color-picker">
+              {["default", "red", "green", "yellow"].map((color) => (
+                <button
+                  key={color}
+                  type="button"
+                  className={`color-dot ${color} ${noteColor === color ? "active" : ""}`}
+                  onClick={() => setNoteColor(color)}
+                />
+              ))}
+            </div>
+
             <div style={{ display: "flex", gap: "10px", marginTop: "15px" }}>
               <Button variant="contained" type="submit">{editingId ? "Update" : "Add"}</Button>
               <Button variant="outlined" onClick={handleClose}>Cancel</Button>
@@ -194,12 +209,12 @@ function NoteWidget({db, items, noteToOpenId, setNoteToOpenId, user}) {
       {/* Notes list */}
       <div className="notes-list">
         {items.map(item => (
-          <div className="note" key={item.id}>
+          <div className={`note note-${item.color || "default"}`} key={item.id}>
             <div className="note-header">
               <h2>{item.title}</h2>
               <div className="note-buttons">
                 <Button variant="contained" size="small" onClick={() => toggleFavorite(item.id)}>
-                  <FavoriteIcon sx={{ color: item.favorite ? 'red' : 'white' }} />
+                  <FavoriteIcon sx={{ color: item.favorite ? 'red' : 'inherit' }} />
                 </Button>
                 <Button variant="contained" size="small" onClick={() => handleEdit(item.id)}>
                   <EditIcon />

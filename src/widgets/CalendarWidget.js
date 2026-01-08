@@ -64,24 +64,26 @@ export default function CalendarWidget({ notes, onNoteDateClick }) {
   };
 
   return (
-    <LocalizationProvider dateAdapter={AdapterDayjs}>
-      <DateCalendar showDaysOutsideCurrentMonth fixedWeekNumber={5}
-        value={value}
-        onChange={(newValue) => setValue(newValue)}
-        slots={{
-          day: (dayProps) => {
-            const dateStr = dayProps.day.format("YYYY-MM-DD");
-            const hasNote = notesByDate.has(dateStr);
-            return (
-              <DayWithBadge
-                {...dayProps}
-                dayHasNote={hasNote}
-                onClick={handleDayClick}
-              />
-            );
-          },
-        }}
-      />
-    </LocalizationProvider>
+    <div className="calendar-content">
+      <LocalizationProvider dateAdapter={AdapterDayjs}>
+        <DateCalendar showDaysOutsideCurrentMonth fixedWeekNumber={5}
+          value={value}
+          onChange={(newValue) => setValue(newValue)}
+          slots={{
+            day: (dayProps) => {
+              const dateStr = dayProps.day.format("YYYY-MM-DD");
+              const hasNote = notesByDate.has(dateStr);
+              return (
+                <DayWithBadge
+                  {...dayProps}
+                  dayHasNote={hasNote}
+                  onClick={handleDayClick}
+                />
+              );
+            },
+          }}
+        />
+      </LocalizationProvider>
+    </div>
   );
 }
