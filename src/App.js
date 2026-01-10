@@ -184,7 +184,7 @@ function App() {
           <header className="header">
             Dashboard
             <div className="authentication-buttons">
-              {/* login visibility */}
+              {/*login visibility*/}
               {(!user || user.isAnonymous) && (
                 <>
                   <Button
@@ -219,7 +219,7 @@ function App() {
                   </Button>
                 </>
               )}
-              {/* Settings*/}
+              {/*settings*/}
               {user && !user.isAnonymous &&(
                 <>
                   <Button
@@ -273,7 +273,7 @@ function App() {
             </div>
           </header>
 
-          {/* Auth Modal */}
+          {/*auth modal*/}
           <Modal open={modalOpen} onClose={() => setModalOpen(false)}>
             <Box sx={{
               position: "absolute",
