@@ -140,7 +140,7 @@ function NoteWidget({db, items, noteToOpenId, setNoteToOpenId, user}) {
   return (
     <div className="note-widget">
       <div className="note-widget-header">
-        <h1>Notes</h1>
+        <h1 className="title">Notes</h1>
         {!showForm && (
           <Button
             variant="contained"
@@ -212,7 +212,9 @@ function NoteWidget({db, items, noteToOpenId, setNoteToOpenId, user}) {
           <div className={`note note-${item.color || "default"}`} key={item.id}>
             <div className="note-header">
               <h2>{item.title}</h2>
-              <div className="note-buttons">
+            </div>
+            <div className="note-text">{parse(DOMPurify.sanitize(item.text))}</div>
+            <div className="note-buttons">
                 <Button variant="contained" size="small" onClick={() => toggleFavorite(item.id)}>
                   <FavoriteIcon sx={{ color: item.favorite ? 'red' : 'inherit' }} />
                 </Button>
@@ -223,8 +225,6 @@ function NoteWidget({db, items, noteToOpenId, setNoteToOpenId, user}) {
                   <DeleteIcon />
                 </Button>
               </div>
-            </div>
-            <div className="note-text">{parse(DOMPurify.sanitize(item.text))}</div>
           </div>
         ))}
       </div>

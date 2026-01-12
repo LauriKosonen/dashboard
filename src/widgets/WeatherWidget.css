@@ -138,3 +138,23 @@
 
 
 }
+
+@media only screen and (max-width: 780px) {
+
+  .weather-widget {
+    height: 100%;
+  }
+
+  .weather-forecast > * {
+    margin-top: 2.5rem;
+    font-size: 0.9rem;
+  }
+
+  .weather-now {
+    font-size: 300%;
+    margin-top: 2rem;
+    padding: 0;
+  }
+
+
+}
