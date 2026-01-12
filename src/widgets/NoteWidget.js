@@ -212,12 +212,14 @@ function NoteWidget({db, items, noteToOpenId, setNoteToOpenId, user}) {
           <div className={`note note-${item.color || "default"}`} key={item.id}>
             <div className="note-header">
               <h2>{item.title}</h2>
-            </div>
-            <div className="note-text">{parse(DOMPurify.sanitize(item.text))}</div>
-            <div className="note-buttons">
+              <div className="note-buttons-favourite">
                 <Button variant="contained" size="small" onClick={() => toggleFavorite(item.id)}>
                   <FavoriteIcon sx={{ color: item.favorite ? 'red' : 'inherit' }} />
                 </Button>
+              </div>
+            </div>
+            <div className="note-text">{parse(DOMPurify.sanitize(item.text))}</div>
+            <div className="note-buttons">
                 <Button variant="contained" size="small" onClick={() => handleEdit(item.id)}>
                   <EditIcon />
                 </Button>

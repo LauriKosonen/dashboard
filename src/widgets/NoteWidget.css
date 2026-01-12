@@ -106,7 +106,6 @@
 }
 
 .note-header h2 {
-  max-width: calc(100% - 10em); 
   margin: 0;
   white-space: normal;
   overflow-wrap: break-word;
@@ -119,7 +118,7 @@
 
 .note-buttons {
   position: absolute;
-  top: 8px;
+  bottom: 8px;
   right: 8px;
   display: flex;
   gap: 8px;
@@ -210,7 +209,23 @@
 }
 
 .note-yellow .note-header {
-  background: #ffe699;
+  background: #ffe596;
+}
+
+.note-default .note-buttons button {
+  background: #a8d2ff;
+}
+
+.note-red .note-buttons button {
+  background: #e8a8a8;
+}
+
+.note-green .note-buttons button {
+  background: #bfe8bf;
+}
+
+.note-yellow .note-buttons button {
+  background: #ffe596;
 }
 
 @media only screen and (max-width: 900px) {
